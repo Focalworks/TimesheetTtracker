@@ -1,0 +1,26 @@
+{
+  "name": "timesheet_tracker",
+  "version": "1.0.0",
+  "description": "App to track timesheet",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Focalworks/TimesheetTtracker.git"
+  },
+  "keywords": [
+    "timesheet"
+  ],
+  "author": "FW",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Focalworks/TimesheetTtracker/issues"
+  },
+  "homepage": "https://github.com/Focalworks/TimesheetTtracker#readme",
+  "devDependencies": {
+    "angular": "^1.4.8",
+    "electron-prebuilt": "^0.35.2"
+  }
+}
