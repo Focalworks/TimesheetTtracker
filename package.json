@@ -4,7 +4,8 @@
   "description": "App to track timesheet",
   "main": "src/app.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build:all": "electron-packager . TimesheetTracker --platform=all --arch=all --version=0.35.2"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
   "homepage": "https://github.com/Focalworks/TimesheetTtracker#readme",
   "devDependencies": {
     "angular": "^1.4.8",
+    "electron-packager": "^5.1.1",
     "electron-prebuilt": "^0.35.2",
     "humanize-duration": "^3.3.0",
     "moment": "^2.10.6"

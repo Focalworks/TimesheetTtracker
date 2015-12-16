@@ -18,7 +18,7 @@
     </div>
 
     <div  class="form-group">
-        <timer interval="1000" auto-start="false"><span ng-if="hours">{{hours}} hour{{hoursS}}, </span> <span ng-if="minutes">{{minutes}} minute{{minutesS}}, </span>{{seconds}} second{{secondsS}}.</timer>
+        <timer interval="1000" auto-start="false" ><span ng-show="hours">{{hours}} hour{{hoursS}}, </span> <span ng-show="minutes">{{minutes}} minute{{minutesS}}, </span>{{seconds}} second{{secondsS}}.</timer>
 
         <button ng-click="startTimer()" ng-disabled="timerRunning">Start Timer</button>
         <button ng-click="stopTimer()" ng-disabled="!timerRunning">Stop Timer</button>

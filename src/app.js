@@ -3,6 +3,7 @@
  */
 var app = require('app');
 browserWindow = require('browser-window');
+var ipc = require("electron").ipcMain;
 
 var mainWindow = null;
 app.on('ready', function() {
@@ -11,3 +12,7 @@ app.on('ready', function() {
     mainWindow.openDevTools();
 });
 
+ipc.on('online-status-changed', function(event, status) {
+   /* console.log("Status changed");
+    console.log(status);*/
+});
