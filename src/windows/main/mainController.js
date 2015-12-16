@@ -3,8 +3,34 @@
  */
 var myApp = angular.module('MainWindow', ['timer', 'myService']);
 
-    myApp.controller('MainCtrl', ['$scope', function($scope) {
-
+    myApp.config(function ($httpProvider) {
+        $httpProvider.interceptors.push('Interceptor');
+    });
+    myApp.controller('MainCtrl', ['$scope', '$rootScope', 'Factory', '$interval', function($scope, $rootScope, Factory, $interval) {
+        //var running;
+        //$scope.online = $rootScope.online
+        //Factory.ckIfOnline();
+        //
+        //$rootScope.$watch('online', function(newValue, oldValue){
+        //    if (newValue !== oldValue) {
+        //        $scope.online=$rootScope.online;
+        //    }
+        //    console.log($scope.online);
+        //});
+        //
+        ////$scope.toggle=function(){
+        //    if (running) {
+        //        $interval.cancel(running);
+        //        running=null;
+        //        $scope.running='not polling server';
+        //    }else{
+        //        $scope.running='polling server';
+        //        running = $interval(function(){
+        //            console.log('running update')
+        //            Factory.ckIfOnline();
+        //        },5000);
+        //    }
+        //}
     }]);
 
     myApp.controller('timesheetCtrl', ['timesheet','$scope', function(timesheet, $scope) {
