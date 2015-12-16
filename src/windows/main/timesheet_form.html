@@ -9,12 +9,31 @@
     </div>
 
     <div  class="form-group">
-        <div ng-repeat="tag in timesheet.tagArr">
+        <div ng-repeat="(tag,enabled) in timesheet.tagArr">
             <div class="checkbox check-info">
-                <input id="tag-{{$index}}" type="checkbox" ng-model="timesheet.tags" class="form-control"/>
+                <input id="tag-{{$index}}" type="checkbox" ng-model="timesheet.tagArr[tag]" class="form-control" name="tag[]"/>
                 <label for="tag-{{$index}}">{{tag}}</label>
             </div>
         </div>
     </div>
 
+    <div  class="form-group">
+        <timer interval="1000" auto-start="false"><span ng-if="hours">{{hours}} hour{{hoursS}}, </span> <span ng-if="minutes">{{minutes}} minute{{minutesS}}, </span>{{seconds}} second{{secondsS}}.</timer>
+
+        <button ng-click="startTimer()" ng-disabled="timerRunning">Start Timer</button>
+        <button ng-click="stopTimer()" ng-disabled="!timerRunning">Stop Timer</button>
+    </div>
+    <!-- <h3>Timer 1: <timer/></h3>
+     <h3>Timer 2: <timer interval="2000"/></h3>
+     <h3>Timer 3: <timer>{{minutes}} minutes, {{seconds}} seconds.</timer></h3>
+     <button ng-click="startTimer()" ng-disabled="timerRunning">Start Timers</button>
+     <button ng-click="stopTimer()" ng-disabled="!timerRunning">Stop Timers</button>-->
+
+
+    <table>
+        <tr ng-repeat="value in response">
+            <td class="col-md-3">{{value.description}}</td>
+            <td class="col-md-3">{{value.time}}</td>
+        </tr>
+    </table>
 </div>

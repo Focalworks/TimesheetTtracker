@@ -21,6 +21,8 @@
   "homepage": "https://github.com/Focalworks/TimesheetTtracker#readme",
   "devDependencies": {
     "angular": "^1.4.8",
-    "electron-prebuilt": "^0.35.2"
+    "electron-prebuilt": "^0.35.2",
+    "humanize-duration": "^3.3.0",
+    "moment": "^2.10.6"
   }
 }

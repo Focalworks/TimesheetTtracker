@@ -1,0 +1,25 @@
+<!-- From index.tpl.html - Grunt task index -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Angular Timer, a simple, inter-operable AngularJS directive</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    
+    <!-- compiled JavaScript -->
+    <script type="text/javascript" src="../bower_components/angular/angular.min.js"></script>
+
+    <script>var moment = require("moment")</script>
+    <script>var humanizeDuration = require("humanize-duration")</script>
+    <script src="../bower_components/angular-timer/dist/angular-timer.js"></script>
+    <script>require('./app1.js')</script>
+</head>
+<body ng-app="MainWindow" ng-controller="TimerDemoController">
+
+    <timer interval="1000">{{hours}} hour{{hoursS}}, {{minutes}} minute{{minutesS}}, {{seconds}} second{{secondsS}}.</timer>
+
+    <button ng-click="startTimer()" ng-disabled="timerRunning">Start Timer</button>
+    <button ng-click="stopTimer()" ng-disabled="!timerRunning">Stop Timer</button>
+
+</body>
+</html>
