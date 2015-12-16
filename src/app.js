@@ -1,6 +1,3 @@
-/**
- * Created by komal on 3/12/15.
- */
 var app = require('app');
 browserWindow = require('browser-window');
 var ipc = require("electron").ipcMain;
@@ -13,6 +10,6 @@ app.on('ready', function() {
 });
 
 ipc.on('online-status-changed', function(event, status) {
-   /* console.log("Status changed");
-    console.log(status);*/
+    /* console.log("Status changed");
+     console.log(status);*/
 });

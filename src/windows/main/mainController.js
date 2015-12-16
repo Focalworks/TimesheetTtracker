@@ -58,3 +58,27 @@ var myApp = angular.module('MainWindow', ['timer', 'myService']);
 
     }]);
 
+myApp.factory('Interceptor', function($rootScope){
+    var Interceptor ={
+        responseError: function(response){
+            $rootScope.status = response.status;
+            $rootScope.online = false;
+            return response;
+        },
+        response: function(response){
+            $rootScope.status = response.status;
+            $rootScope.online = true;
+            return response;
+        }
+    };
+    return Interceptor;
+})
+    .factory('Factory', function($q, $http, $rootScope){
+        var httpLoc = 'http://google.com';
+        return{
+            ckIfOnline: function(){
+                $http.get(httpLoc);
+            },
+        }
+    })
+

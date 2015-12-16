@@ -16,6 +16,21 @@
 </head>
 <body ng-app="MainWindow" ng-controller="TimerDemoController">
 
+<script>
+    window.addEventListener('load', function() {
+        const ipcRenderer = require('electron').ipcRenderer;
+        var updateOnlineStatus = function () {
+            console.log('update status');
+            ipcRenderer.send('online-status-changed', navigator.onLine ? 'online' : 'offline');
+        };
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        updateOnlineStatus();
+    });
+</script>
+
     <timer interval="1000">{{hours}} hour{{hoursS}}, {{minutes}} minute{{minutesS}}, {{seconds}} second{{secondsS}}.</timer>
 
     <button ng-click="startTimer()" ng-disabled="timerRunning">Start Timer</button>
