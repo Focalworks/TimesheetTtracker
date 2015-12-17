@@ -3,37 +3,22 @@
  */
 var myApp = angular.module('MainWindow', ['timer', 'myService']);
 
-    myApp.config(function ($httpProvider) {
+    /*myApp.config(function ($httpProvider) {
         $httpProvider.interceptors.push('Interceptor');
-    });
-    myApp.controller('MainCtrl', ['$scope', '$rootScope', 'Factory', '$interval', function($scope, $rootScope, Factory, $interval) {
-        //var running;
-        //$scope.online = $rootScope.online
-        //Factory.ckIfOnline();
-        //
-        //$rootScope.$watch('online', function(newValue, oldValue){
-        //    if (newValue !== oldValue) {
-        //        $scope.online=$rootScope.online;
-        //    }
-        //    console.log($scope.online);
-        //});
-        //
-        ////$scope.toggle=function(){
-        //    if (running) {
-        //        $interval.cancel(running);
-        //        running=null;
-        //        $scope.running='not polling server';
-        //    }else{
-        //        $scope.running='polling server';
-        //        running = $interval(function(){
-        //            console.log('running update')
-        //            Factory.ckIfOnline();
-        //        },5000);
-        //    }
-        //}
+    });*/
+    myApp.controller('MainCtrl', ['$scope', '$rootScope','$interval', function($scope, $rootScope, $interval) {
+
+        console.log("Newtork" , doesConnectionExist());
+
+
+        window.addEventListener('online', function() {
+            console.log("Newtork" , doesConnectionExist());
+            //console.log(test);
+        });
+
     }]);
 
-    myApp.controller('timesheetCtrl', ['timesheet','$scope', function(timesheet, $scope) {
+    myApp.controller('timesheetCtrl', ['timesheet','$scope',  function(timesheet, $scope) {
         $scope.timesheet = {};
         $scope.timesheet.projectArr = ['Fashion App', 'Sunpharma'];
 
@@ -82,8 +67,30 @@ var myApp = angular.module('MainWindow', ['timer', 'myService']);
         });
 
 
+
     }]);
 
+function doesConnectionExist() {
+    var xhr = new XMLHttpRequest();
+    var file = "http://192.168.7.130/dotahead_template_issues/auth/login";
+    var randomNum = Math.round(Math.random() * 10000);
+
+    xhr.open('HEAD', file + "?rand=" + randomNum, false);
+
+    try {
+        xhr.send();
+
+        if (xhr.status >= 200 && xhr.status < 304) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (e) {
+        return false;
+    }
+}
+
+/*
 myApp.factory('Interceptor', function($rootScope){
     var Interceptor ={
         responseError: function(response){
@@ -98,13 +105,50 @@ myApp.factory('Interceptor', function($rootScope){
         }
     };
     return Interceptor;
-})
-    .factory('Factory', function($q, $http, $rootScope){
+});
+
+myApp.factory('Factory', function($q, $http, $rootScope){
         var httpLoc = 'http://google.com';
         return{
             ckIfOnline: function(){
-                $http.get(httpLoc);
-            },
-        }
-    })
+                */
+/*$http.get(httpLoc).on('error', function() {
+                    console.log("ERROR");
+                });*//*
 
+                */
+/*var xmlHttp = new XMLHttpRequest();
+                xmlHttp.onreadystatechange = function() {
+                    if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                        console.log(xmlHttp.responseText);
+                    }
+                    else {
+                        console.log("Error");
+                    }
+                }
+                xmlHttp.open("GET", httpLoc, true); // true for asynchronous
+                xmlHttp.send(null);*//*
+
+
+                $http({
+                    method: 'GET',
+                    url: httpLoc
+                }).then(function successCallback(response) {
+                    if(response) {
+                        console.log("success");
+                    }else {
+                        console.log("ERROR");
+                    }
+                    // this callback will be called asynchronously
+                    // when the response is available
+                }, function errorCallback(response) {
+                    console.log("ERROR");
+                    // called asynchronously if an error occurs
+                    // or server returns response with an error status.
+                });
+            }
+
+        }
+});
+
+*/
