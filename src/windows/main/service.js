@@ -11,16 +11,18 @@ myService.service('timesheet', ['$http', '$rootScope', function ($http, $rootSco
         return $http.get(baseUrl + 'timesheet');
     };
 
-    //return timesheetModel;
+    this.getProjects = function () {
+        return $http.get(baseUrl + 'projects');
+    };
+
+    this.getTags = function () {
+        return $http.get(baseUrl + 'tags');
+    };
+
     this.saveTimesheet = function (timesheetData) {
 
         var url = baseUrl + 'timesheet/save';
         var method = "POST"
-       /* if(timesheetData.id !=undefined) {
-            url = baseUrl + 'asset' + '/' + assetData.id;
-            method = "PUT";
-        }
-*/
         return $http({
             headers: {
                 'Content-Type': 'application/json'
@@ -28,6 +30,31 @@ myService.service('timesheet', ['$http', '$rootScope', function ($http, $rootSco
             url: url,
             method: method,
             data: timesheetData
-        });
+        })
+    };
+
+    this.removeTimesheet = function (uuid) {
+
+        var url = baseUrl + 'timesheet/delete';
+        var method = "POST"
+        return $http({
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            url: url,
+            method: method,
+            data: {uuid:uuid}
+        })
+    };
+
+    this.syncTimesheets = function (timesheetData) {
+        return $http({
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            url: baseUrl + 'timesheet/sync-timesheets',
+            method: "POST",
+            data: timesheetData
+        })
     };
 }]);
