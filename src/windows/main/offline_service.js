@@ -94,7 +94,6 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
 
             if(this.isLoaded() && this.getCollection(collection)) {
                 //this.getCollection(collection).data.removeAll();
-                console.log("Inside Truncate");
                 this.getCollection(collection).clear();
                 this.db.saveDatabase();
 
