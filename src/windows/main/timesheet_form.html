@@ -8,7 +8,7 @@
         </div>
 
         <div class="form-group" ng-class="{'has-error' : addTimesheetForm.project.$error.required && addTimesheetFormSubmit}">
-            <select  ng-model="timesheet.project" ng-options="p.name for p in timesheet.projectArr" class="form-control" required  name="project"><option value="">Select</option></select>
+            <select  ng-model="timesheet.project" ng-options="p.name for p in timesheet.projectArr track by p.id" class="form-control" required  name="project"><option value="">Select</option></select>
             <p ng-show="addTimesheetForm.project.$error.required && addTimesheetFormSubmit"
                class="help-block" >Project is required</p>
         </div>
@@ -39,7 +39,6 @@
             <button ng-click="stopTimer(addTimesheetForm)" ng-disabled="!timerRunning"  class="btn btn-success" ng-show="timerRunning">Stop Timer</button>
         </div>
 
-    </form>
     <!-- <h3>Timer 1: <timer/></h3>
      <h3>Timer 2: <timer interval="2000"/></h3>
      <h3>Timer 3: <timer>{{minutes}} minutes, {{seconds}} seconds.</timer></h3>
@@ -49,7 +48,7 @@
     <div class="row">
     <div class="col-md-12">
         <div  ng-repeat="value in sortedTimeEntries track by $index">
-            <h3><div>{{value.date}}</div>
+            <h3><div class="pull-left">{{value.date}}</div>
                 <div class="pull-right">{{value.totalDuration}}</div>
             </h3>
         <table class="table">
@@ -57,10 +56,13 @@
                 <td class="col-md-3">{{timeEntry.description}}</td>
                 <td class="col-md-3">{{timeEntry.project}}</td>
                 <td class="col-md-3">{{timeEntry.total_time}}</td>
-                <td class="col-md-3" ng-click="delete_entry(timeEntry.uuid)"><i class="glyphicon glyphicon-remove"></i></td>
+                <td class="col-md-2" ng-click="continue_entry(timeEntry.uuid, addTimesheetForm)"><i class="glyphicon glyphicon-play"></i></td>
+                <td class="col-md-2" ng-click="delete_entry(timeEntry.uuid)"><i class="glyphicon glyphicon-remove"></i></td>
             </tr>
         </table>
         </div>
     </div>
     </div>
+    </form>
+
 </div>

@@ -158,4 +158,8 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
         }
     };
 
+    this.getSingleTimeEntry = function(uuid) {
+        return (this.getCollection("timesheet")) ? this.getCollection("timesheet").find({uuid: uuid}) : null;
+    };
+
 }]);
