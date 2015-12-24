@@ -49,9 +49,8 @@
     <div class="row">
     <div class="col-md-12">
         <div  ng-repeat="value in sortedTimeEntries track by $index">
-            <h3>
-                <div>{{value.date}}</div>
-                <div>{{value.total_duration}}</div>
+            <h3><div>{{value.date}}</div>
+                <div class="pull-right">{{value.totalDuration}}</div>
             </h3>
         <table class="table">
             <tr ng-repeat="timeEntry in value.data track by $index">

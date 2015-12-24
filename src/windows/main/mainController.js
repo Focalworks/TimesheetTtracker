@@ -146,6 +146,7 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
             var output = [];
             angular.forEach(value, function(data, key) {
                 value[key].date = getFormattedTime(parseInt(data.start_time), true);
+                value[key].dateTime = parseInt(data.start_time);
                 if(data.total_time) {
                     value[key].timeInSeconds = toSeconds(data.total_time.toString());
                 }
@@ -154,9 +155,7 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
             $scope.sortedTimeEntries = groupBy(value, 'date');
 
             $scope.sortedTimeEntries.sort(function(a, b){
-                console.log("Date", b.date);
-                console.log("Date", new Date(b.date));
-                return new Date(b.date) - new Date(a.date);
+                return b.dateTime - a.dateTime;
             });
 
             /* Sort time entries descending order */
@@ -233,7 +232,7 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
             for (i = 0, j = arr.length; i < j; i++) {
                 cur = arr[i];
                 if (!(cur[key] in types)) {
-                    types[cur[key]] = { date: cur[key], data: [] , totalDuration: ''};
+                    types[cur[key]] = { date: cur[key], data: [] , totalDuration: 0, dateTime: cur['dateTime']};
                     newArr.push(types[cur[key]]);
                 }
                 types[cur[key]].data.push(cur);
