@@ -25,7 +25,6 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
                 this.timesheetCollection = this.db.getCollection('timesheet');
                 this.projectCollection = this.db.getCollection('projects');
                 this.tagCollection = this.db.getCollection('tags');
-                //this.userCollection = this.db.getCollection('user');
                 // this.loaded = true;
 
                 d.resolve(this);
@@ -42,7 +41,6 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
                 this.timesheetCollection = this.db.getCollection('timesheet');
                 this.projectCollection = this.db.getCollection('projects');
                 this.tagCollection = this.db.getCollection('tags');
-                //this.userCollection = this.db.getCollection('user');
                 // this.loaded = true;
 
                 d.resolve(this);
@@ -98,7 +96,6 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
 
             if(this.isLoaded() && this.getCollection(collection)) {
                 //this.getCollection(collection).data.removeAll();
-                console.log("Inside Truncate");
                 this.getCollection(collection).clear();
                 this.db.saveDatabase();
 
@@ -161,4 +158,9 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
             return (this.getCollection(collection)) ? this.getCollection(collection).data : null;
         }
     };
+
+    this.getSingleTimeEntry = function(uuid) {
+        return (this.getCollection("timesheet")) ? this.getCollection("timesheet").find({uuid: uuid}) : null;
+    };
+
 }]);
