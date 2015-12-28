@@ -1,0 +1,82 @@
+/**
+ * Created by pruthvi on 17/12/15.
+ */
+
+angular.module('userModelService' , ['ngCookies'])
+    .factory('userModel', ['$http','$cookies', '$cookieStore', '$window','$rootScope',
+    function($http, $cookies, $cookieStore,$window, $rootScope){
+        var userModel = {};
+        /**
+         * Check if the credentials are correct from server
+         * and return the promise back to the controller
+         *
+         * @param  {array} loginData
+         * @return {promise}
+         */
+        /**
+         * Check if the credentials are correct from server
+         * and return the promise back to the controller
+         *
+         * @param  {array} loginData
+         * @return {promise}
+         */
+        userModel.doLogin = function (loginData) {
+            return $http({
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                url: baseUrl + 'auth',
+                method: "POST",
+                data: {
+                    email: loginData.email,
+                    password: loginData.password
+                }
+            }).success(function (response) {
+                ///"file://" + __dirname +
+                var cookievalue = JSON.stringify(response);
+                $cookies.put('auth', cookievalue);
+                return response;
+
+            }).error(function (data, status, headers) {
+                //snackbar.create(data, 5000);
+            });
+        }
+
+        /**
+         * Return whether the user is logged in or not
+         * based on the cookie set during the login
+         *
+         * @return {boolean}
+         */
+        userModel.getAuthStatus = function () {
+            var status = $cookies.get('auth');
+            if (status) {
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+        /**
+         * Return the user object from the cookie
+         * and convert from string to JSON
+         *
+         * @return {userObject}
+         */
+        userModel.getUserObject = function () {
+            var user = angular.fromJson($cookies.get('auth'));
+            return user;
+        }
+
+        /**
+         * Close the session of the current user
+         * and delete the cookie set for him
+         *
+         * @return boolean
+         */
+        userModel.doUserLogout = function () {
+            $cookies.remove('auth');
+        };
+
+        return userModel;
+    }]);
