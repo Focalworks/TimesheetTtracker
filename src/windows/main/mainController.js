@@ -142,9 +142,12 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         $scope.clearFields = function() {
             $scope.timesheet.project = {};
             $scope.timesheet.description = "";
-            /*angular.forEach($scope.timesheet.tagArr, function(tag, key) {
-                $scope.timesheet.tagArr[key] = false;
-            });*/
+            var temp = angular.copy($scope.timesheet.tagArr);
+            angular.forEach(temp, function(tag, key) {
+                temp[key] = false;
+            });
+
+            $scope.timesheet.tagArr = angular.copy(temp);
             $scope.$broadcast('timer-reset');
         };
 
