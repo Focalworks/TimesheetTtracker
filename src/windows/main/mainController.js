@@ -1,6 +1,56 @@
 var uuid = require('node-uuid');
+var _templateBase = '';
+var myApp = angular.module('MainWindow', ['timer', 'myService', 'offlineService', 'userModelService', 'ngRoute']);
 
-var myApp = angular.module('MainWindow', ['timer', 'myService', 'offlineService']);
+myApp.config(['$routeProvider', '$locationProvider',
+    function ($routeProvider, $locationProvider) {
+        $routeProvider.when('/', {
+            templateUrl: _templateBase+'login.html',
+            controller: 'userCtrl'
+        });
+
+        $routeProvider.when('/timesheet', {
+            templateUrl: _templateBase+'timesheet_form.html',
+            controller: 'timesheetCtrl'
+        });
+    }]);
+
+myApp.controller('userCtrl', ['$scope', '$location', '$timeout', 'userModel', 'OfflineStorage',
+    function ($scope, $location, $timeout, userModel, OfflineStorage) {
+        OfflineStorage
+            .init().then(function(db){
+
+                $scope.userObject =  db.getDocs('user');
+                console.log($scope.userObject);
+                if($scope.userObject && $scope.userObject[0] && $scope.userObject[0].id)
+                {
+                    $location.path('/timesheet');
+                }
+                /*Methods*/
+                angular.extend($scope, {
+                    userObject: { email:'', password:'' },
+                    doLogin: function (doLogin) {
+                        $scope.loginStatus = false;
+
+                        var data = {
+                            email: $scope.userLogin.email,
+                            password: $scope.userLogin.password
+                        };
+
+                        userModel.doLogin(data).success(function (response) {
+                            OfflineStorage.truncateDb('user');
+                            OfflineStorage.addDoc(response, 'user');
+                            $location.path('/timesheet');
+                        }).error(function (data, status, header) {
+                            $scope.loginStatus = true;
+                            $scope.error = true;
+                            $scope.errorMsg = data.message;
+                        });
+                    }
+                });
+            });
+    }
+]);
 
 myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope','$interval', function($scope,OfflineStorage,timesheet, $rootScope, $interval) {
     $scope.timeEntries = [];
@@ -19,7 +69,7 @@ myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope
         .then(function (db) {
 
             /* Load TimeEnteries From Offline and Sync Data to Online*/
-             var timeEntries = db.getDocs('timesheet', 'all');
+            var timeEntries = db.getDocs('timesheet', 'all');
 
             if(timeEntries.length) {
                 angular.forEach(timeEntries, function(data, key) {
@@ -90,97 +140,97 @@ myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope
 }]);
 
 myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  function(timesheet, OfflineStorage, $scope) {
-        /*$scope.timesheet = {};
-        $scope.timesheet.projectArr = ['Fashion App', 'Sunpharma'];
-        $scope.timesheet.tagArr = {RND: false, Development: false};*/
-        $scope.addTimesheetFormSubmit = false;
+    /*$scope.timesheet = {};
+     $scope.timesheet.projectArr = ['Fashion App', 'Sunpharma'];
+     $scope.timesheet.tagArr = {RND: false, Development: false};*/
+    $scope.addTimesheetFormSubmit = false;
 
+    var currentDate = new Date().getTime();
+
+    $scope.timesheet.start_time_format = getFormattedTime(currentDate);
+    $scope.timesheet.end_time_format = getFormattedTime(currentDate);
+
+    $scope.timerRunning = false;
+
+    /* Start Timer on click */
+    $scope.startTimer = function (){
         var currentDate = new Date().getTime();
-
+        $scope.$broadcast('timer-start');
+        $scope.timerRunning = true;
+        $scope.timesheet.start_time = currentDate;
+        $scope.timesheet.end_time = currentDate;
         $scope.timesheet.start_time_format = getFormattedTime(currentDate);
         $scope.timesheet.end_time_format = getFormattedTime(currentDate);
+    };
 
-        $scope.timerRunning = false;
+    /* Stop Timer on click */
+    $scope.stopTimer = function (addTimesheetForm){
+        var formIsValid = $scope.validate_fields(addTimesheetForm);
+        if(formIsValid && addTimesheetForm.$valid) {
+            $scope.timesheet.end_time = new Date().getTime();
+            $scope.timesheet.end_time_format = getFormattedTime($scope.timesheet.end_time);
+            $scope.$broadcast('timer-stop');
+            $scope.timerRunning = false;
+        }else {
+            $scope.addTimesheetFormSubmit = true;
+        }
+    };
 
-        /* Start Timer on click */
-        $scope.startTimer = function (){
-            var currentDate = new Date().getTime();
-            $scope.$broadcast('timer-start');
-            $scope.timerRunning = true;
-            $scope.timesheet.start_time = currentDate;
-            $scope.timesheet.end_time = currentDate;
-            $scope.timesheet.start_time_format = getFormattedTime(currentDate);
-            $scope.timesheet.end_time_format = getFormattedTime(currentDate);
-        };
+    /* Validate Form Fields */
+    $scope.validate_fields = function(addTimesheetForm) {
+        var valid = false;
+        addTimesheetForm.tag.$error.required = true;
 
-        /* Stop Timer on click */
-        $scope.stopTimer = function (addTimesheetForm){
-            var formIsValid = $scope.validate_fields(addTimesheetForm);
-            if(formIsValid && addTimesheetForm.$valid) {
-                $scope.timesheet.end_time = new Date().getTime();
-                $scope.timesheet.end_time_format = getFormattedTime($scope.timesheet.end_time);
-                $scope.$broadcast('timer-stop');
-                $scope.timerRunning = false;
-            }else {
-                $scope.addTimesheetFormSubmit = true;
+        angular.forEach($scope.timesheet.tagArr, function(data, key) {
+            if(data) {
+                valid = true;
+                addTimesheetForm.tag.$error.required= false;
             }
-        };
+        });
 
-        /* Validate Form Fields */
-        $scope.validate_fields = function(addTimesheetForm) {
-            var valid = false;
-            addTimesheetForm.tag.$error.required = true;
+        return valid;
+    };
 
-            angular.forEach($scope.timesheet.tagArr, function(data, key) {
-                if(data) {
-                    valid = true;
-                    addTimesheetForm.tag.$error.required= false;
+    /* Group by date and sort by */
+    $scope.$watch('timeEntries', function(value) {
+        var output = [];
+        angular.forEach(value, function(data, key) {
+            value[key].date = getFormattedTime(parseInt(data.start_time), true);
+            value[key].dateTime = parseInt(data.start_time);
+            if(data.total_time) {
+                value[key].timeInSeconds = toSeconds(data.total_time.toString());
+            }
+        });
+
+        $scope.sortedTimeEntries = groupBy(value, 'date');
+
+        $scope.sortedTimeEntries.sort(function(a, b){
+            return b.dateTime - a.dateTime;
+        });
+
+        /* Sort time entries descending order */
+        angular.forEach($scope.sortedTimeEntries, function(data1, tkey) {
+            var total_duration = 0;
+            angular.forEach(data1.data, function(timesheet, ttkey) {
+                if(timesheet.timeInSeconds) {
+                    total_duration += timesheet.timeInSeconds;
                 }
             });
+            $scope.sortedTimeEntries[tkey].totalDuration = toHHMMSS(total_duration);
 
-            return valid;
-        };
-
-        /* Group by date and sort by */
-        $scope.$watch('timeEntries', function(value) {
-            var output = [];
-            angular.forEach(value, function(data, key) {
-                value[key].date = getFormattedTime(parseInt(data.start_time), true);
-                value[key].dateTime = parseInt(data.start_time);
-                if(data.total_time) {
-                    value[key].timeInSeconds = toSeconds(data.total_time.toString());
-                }
+            data1.data.sort(function(a, b){
+                return b.end_time-a.end_time;  //sort by date ascending
             });
 
-            $scope.sortedTimeEntries = groupBy(value, 'date');
 
-            $scope.sortedTimeEntries.sort(function(a, b){
-                return b.dateTime - a.dateTime;
-            });
+            //$scope.$apply();
 
-            /* Sort time entries descending order */
-            angular.forEach($scope.sortedTimeEntries, function(data1, tkey) {
-                var total_duration = 0;
-                angular.forEach(data1.data, function(timesheet, ttkey) {
-                    if(timesheet.timeInSeconds) {
-                        total_duration += timesheet.timeInSeconds;
-                    }
-                });
-                $scope.sortedTimeEntries[tkey].totalDuration = toHHMMSS(total_duration);
+        });
 
-                data1.data.sort(function(a, b){
-                    return b.end_time-a.end_time;  //sort by date ascending
-                });
+        console.log("$scope.sortedTimeEntries", $scope.sortedTimeEntries);
 
 
-                //$scope.$apply();
-
-            });
-
-            console.log("$scope.sortedTimeEntries", $scope.sortedTimeEntries);
-
-
-        }, true);
+    }, true);
 
     $scope.delete_entry = function(uuid) {
         if(confirm("Deleted Time Entries cannot be restored"))
@@ -191,11 +241,11 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
                     $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
                 });
             }).error(function(data) {
-                 /* Update deleted flag to 1 */
-                 OfflineStorage.updateTimesheetStatus(uuid, 'updateRemove').then(function(offlineDbData) {
+                /* Update deleted flag to 1 */
+                OfflineStorage.updateTimesheetStatus(uuid, 'updateRemove').then(function(offlineDbData) {
                     $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
-                     console.log("NEW", $scope.timeEntries);
-                 });
+                    console.log("NEW", $scope.timeEntries);
+                });
             });
         }
         else
@@ -226,62 +276,62 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
 
     function groupBy(arr, key) {
-            var newArr = [],
-                types = {},
-                newItem, i, j, cur;
-            for (i = 0, j = arr.length; i < j; i++) {
-                cur = arr[i];
-                if (!(cur[key] in types)) {
-                    types[cur[key]] = { date: cur[key], data: [] , totalDuration: 0, dateTime: cur['dateTime']};
-                    newArr.push(types[cur[key]]);
-                }
-                types[cur[key]].data.push(cur);
+        var newArr = [],
+            types = {},
+            newItem, i, j, cur;
+        for (i = 0, j = arr.length; i < j; i++) {
+            cur = arr[i];
+            if (!(cur[key] in types)) {
+                types[cur[key]] = { date: cur[key], data: [] , totalDuration: 0, dateTime: cur['dateTime']};
+                newArr.push(types[cur[key]]);
             }
-            return newArr;
+            types[cur[key]].data.push(cur);
         }
+        return newArr;
+    }
 
-        /* Timer Stopped */
-        $scope.$on('timer-stopped', function (event, data){
-            var response = {};
-            response.description = $scope.timesheet.description;
+    /* Timer Stopped */
+    $scope.$on('timer-stopped', function (event, data){
+        var response = {};
+        response.description = $scope.timesheet.description;
 
-            response.project = ($scope.timesheet.project && $scope.timesheet.project.name != undefined) ? $scope.timesheet.project.name : '';
+        response.project = ($scope.timesheet.project && $scope.timesheet.project.name != undefined) ? $scope.timesheet.project.name : '';
 
-           /* var total_hrs = (data.hours) ? data.hours  + 'h ': '';
-            var total_min = (data.minutes) ? data.minutes + 'm ': '';
-            var total_sec = (data.seconds) ? data.seconds + 's ': '';
+        /* var total_hrs = (data.hours) ? data.hours  + 'h ': '';
+         var total_min = (data.minutes) ? data.minutes + 'm ': '';
+         var total_sec = (data.seconds) ? data.seconds + 's ': '';
 
-            var total_time = total_hrs+total_min+total_sec;
-            response.time = total_time;
-            response.total_time = data.millis;*/
+         var total_time = total_hrs+total_min+total_sec;
+         response.time = total_time;
+         response.total_time = data.millis;*/
 
-            var startTime = $scope.timesheet.start_time; //convert string date to Date object
-            var endTime = $scope.timesheet.end_time;
-            var diff = endTime-startTime;
-            response.total_time = millisToTime(diff);
+        var startTime = $scope.timesheet.start_time; //convert string date to Date object
+        var endTime = $scope.timesheet.end_time;
+        var diff = endTime-startTime;
+        response.total_time = millisToTime(diff);
 
-            response.status = 0;
-            response.uuid = uuid.v4();
+        response.status = 0;
+        response.uuid = uuid.v4();
 
-            response.tags = $scope.timesheet.tagArr
+        response.tags = $scope.timesheet.tagArr
 
-            response.start_time = $scope.timesheet.start_time;
-            response.end_time = $scope.timesheet.end_time;
+        response.start_time = $scope.timesheet.start_time;
+        response.end_time = $scope.timesheet.end_time;
 
-            /* Send Data to server */
-            timesheet.saveTimesheet(response).success(function(data) {
-                OfflineStorage.addDoc(data, 'timesheet').then(function(offlineDbData) {
-                    $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
-                });
-            }).error(function(data) {
-                OfflineStorage.addDoc(response, 'timesheet').then(function(offlineDbData) {
-                    $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
-                });
+        /* Send Data to server */
+        timesheet.saveTimesheet(response).success(function(data) {
+            OfflineStorage.addDoc(data, 'timesheet').then(function(offlineDbData) {
+                $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
             });
-
+        }).error(function(data) {
+            OfflineStorage.addDoc(response, 'timesheet').then(function(offlineDbData) {
+                $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
+            });
         });
 
-    }]);
+    });
+
+}]);
 
 function getFormattedTime(unix_timestamp, date) {
     var d = new Date(unix_timestamp);
