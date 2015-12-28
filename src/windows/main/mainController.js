@@ -218,33 +218,12 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
         var timeEntry =  OfflineStorage.getSingleTimeEntry(uuid);
         $scope.timesheet.description = timeEntry[0].description;
-        //$scope.timesheet.project = timeEntry[0].project;
 
         $scope.timesheet.project = {};
         $scope.timesheet.project.name = timeEntry[0].project;
         $scope.timesheet.project.id = timeEntry[0].project_id;
         $scope.timesheet.tagArr = timeEntry[0].tags;
         console.log("CONTINUE", timeEntry);
-
-       /* angular.forEach(timeEntry[0].tags, function (tag, key) {
-            console.log("key",  key);
-
-            //$scope.timesheet.tagArr[key] = true;
-        });*/
-        //$scope.timesheet.tags = timeEntry[0].tags;
-
-        /*angular.forEach(timeEntry[0].tags, function (tag, key) {
-            $scope.timesheet.tagArr[key] = true;
-        });*/
-
-       /* var tags = timeEntry[0].tags.split(',');
-        console.log(tags.length);
-        if(tags) {
-            angular.forEach(tags, function (tag, key) {
-                $scope.timesheet.tagArr[tag] = true;
-            });
-            console.log("Onlu tags");
-        }*/
 
     };
 
@@ -259,12 +238,16 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         var hours   = Math.floor(sec_num / 3600);
         var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
         var seconds = sec_num - (hours * 3600) - (minutes * 60);
-
+        minutes = minutes/60;
+        var total_mins = (hours+minutes)* 100;
+        return total_hrs = Math.round((total_mins/ 100));
         if (hours   < 10) {hours   = "0"+hours;}
         if (minutes < 10) {minutes = "0"+minutes;}
         if (seconds < 10) {seconds = "0"+seconds;}
         var time    = hours+':'+minutes+':'+seconds;
-        return time;
+
+
+        //return time;
     }
 
 
@@ -343,10 +326,10 @@ function getFormattedTime(unix_timestamp, date) {
             "July", "Aug", "Sep", "Oct", "Nov", "Dec"
         ];
 
-        var days = ["Mon", "Tues", "Wed", "Thurs", "Fri", "Sat","Sun"];
+        var days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat","Sun"];
 
         var month = monthNames[d.getMonth()];
-        var day = days[d.getDay()];
+        var day = days[d.getDay()-1];
         var date = d.getDate();
         var time = day + "," + date+nth(date) + ' ' + month;
         return time;
@@ -357,7 +340,7 @@ function getFormattedTime(unix_timestamp, date) {
 }
 
 function nth(d) {
-    if(d>3 && d<21) return 'th'; // thanks kennebec
+    if(d>3 && d<21) return 'th';
     switch (d % 10) {
         case 1:  return "st";
         case 2:  return "nd";
@@ -367,10 +350,10 @@ function nth(d) {
 }
 
 function millisToTime(millis){
-    //Thank you MaxArt.
     var hours = Math.floor(millis / 36e5),
         mins = Math.floor((millis % 36e5) / 6e4),
         secs = Math.floor((millis % 6e4) / 1000);
+
     return hours+':'+mins+':'+secs;
 }
 
