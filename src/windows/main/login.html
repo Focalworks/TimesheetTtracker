@@ -1,0 +1,32 @@
+<div ng-controller="userCtrl">
+
+    <div class="alert alert-danger" ng-show="error">{{errorMsg}}</div>
+    <div class="row">
+        <div class="col-sm-5 col-sm-push-4">
+            <div class="panel panel-primary panel-login animated" ng-class="{shake: loginStatus}">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Login</h3>
+                </div>
+                <div class="panel-body">
+                    <form ng-submit="doLogin(loginForm)" name="loginForm">
+
+                        <div class="form-group">
+                            <input type="email" name="email"
+                                   placeholder="Enter your email address" ng-model="userLogin.email"
+                                   class="form-control" />
+                        </div>
+
+                        <div class="form-group">
+                            <input type="password" name="password"
+                                   placeholder="Enter your password" ng-model="userLogin.password"
+                                   class="form-control" />
+                        </div>
+
+                        <button class="btn btn-success">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -15,6 +15,7 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
     this.tagCollection = null;
     this.collection = null;
     this.loaded = false;
+    this.userCollection = null;
 
     this.init = function () {
         var d = $q.defer();
@@ -33,6 +34,7 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
                 this.db.addCollection('timesheet');
                 this.db.addCollection('projects');
                 this.db.addCollection('tags');
+                this.db.addCollection('user');
                 // save and create file
                 this.db.saveDatabase();
 

@@ -5,7 +5,7 @@
 var myService = angular.module('myService', []);
 myService.service('timesheet', ['$http', '$rootScope', function ($http, $rootScope) {
 
-    var baseUrl = "http://localhost/RND/laravel_rnd/timesheet/public/";
+    //var baseUrl = "http://localhost/timesheet/public/";
 
     this.getTimesheet = function () {
         return $http.get(baseUrl + 'timesheet');
