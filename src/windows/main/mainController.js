@@ -21,7 +21,7 @@ myApp.controller('userCtrl', ['$scope', '$location', '$timeout', 'userModel', 'O
             .init().then(function(db){
 
                 $scope.userObject =  db.getDocs('user');
-                console.log($scope.userObject);
+
                 if($scope.userObject && $scope.userObject[0] && $scope.userObject[0].id)
                 {
                     $location.path('/timesheet');
@@ -170,6 +170,8 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
                 $scope.timesheet.end_time_format = getFormattedTime($scope.timesheet.end_time);
                 $scope.$broadcast('timer-stop');
                 $scope.timerRunning = false;
+                $scope.addTimesheetFormSubmit = false;
+                $scope.clearFields();
             }else {
                 $scope.addTimesheetFormSubmit = true;
             }
@@ -190,46 +192,42 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
             return valid;
         };
 
-        /* Group by date and sort by */
-        $scope.$watch('timeEntries', function(value) {
-            var output = [];
-            angular.forEach(value, function(data, key) {
-                value[key].date = getFormattedTime(parseInt(data.start_time), true);
-                value[key].dateTime = parseInt(data.start_time);
-                if(data.total_time) {
-                    value[key].timeInSeconds = toSeconds(data.total_time.toString());
+    /* Group by date and sort by */
+    $scope.$watch('timeEntries', function(value) {
+        var output = [];
+        angular.forEach(value, function(data, key) {
+            value[key].date = getFormattedTime(parseInt(data.start_time), true);
+            value[key].dateTime = parseInt(data.start_time);
+            if(data.total_time) {
+                value[key].timeInSeconds = toSeconds(data.total_time.toString());
+            }
+        });
+
+        $scope.sortedTimeEntries = groupBy(value, 'date');
+
+        $scope.sortedTimeEntries.sort(function(a, b){
+            return b.dateTime - a.dateTime;
+        });
+
+        /* Sort time entries descending order */
+        angular.forEach($scope.sortedTimeEntries, function(data1, tkey) {
+            var total_duration = 0;
+            angular.forEach(data1.data, function(timesheet, ttkey) {
+                if(timesheet.timeInSeconds) {
+                    total_duration += timesheet.timeInSeconds;
                 }
             });
 
-            $scope.sortedTimeEntries = groupBy(value, 'date');
+            $scope.sortedTimeEntries[tkey].totalDuration = toHHMMSS(total_duration);
 
-            $scope.sortedTimeEntries.sort(function(a, b){
-                return b.dateTime - a.dateTime;
+            data1.data.sort(function(a, b){
+                return b.end_time-a.end_time;  //sort by date ascending
             });
 
-            /* Sort time entries descending order */
-            angular.forEach($scope.sortedTimeEntries, function(data1, tkey) {
-                var total_duration = 0;
-                angular.forEach(data1.data, function(timesheet, ttkey) {
-                    if(timesheet.timeInSeconds) {
-                        total_duration += timesheet.timeInSeconds;
-                    }
-                });
-                $scope.sortedTimeEntries[tkey].totalDuration = toHHMMSS(total_duration);
-
-                data1.data.sort(function(a, b){
-                    return b.end_time-a.end_time;  //sort by date ascending
-                });
+        });
 
 
-                //$scope.$apply();
-
-            });
-
-            console.log("$scope.sortedTimeEntries", $scope.sortedTimeEntries);
-
-
-        }, true);
+    }, true);
 
     $scope.delete_entry = function(uuid) {
         if(confirm("Deleted Time Entries cannot be restored"))
@@ -243,7 +241,6 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
                  /* Update deleted flag to 1 */
                  OfflineStorage.updateTimesheetStatus(uuid, 'updateRemove').then(function(offlineDbData) {
                     $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
-                     console.log("NEW", $scope.timeEntries);
                  });
             });
         }
@@ -254,7 +251,20 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
     };
 
+    $scope.clearFields = function() {
+        $scope.timesheet.project = {};
+        $scope.timesheet.description = "";
+        var temp = angular.copy($scope.timesheet.tagArr);
+        angular.forEach(temp, function(tag, key) {
+            temp[key] = false;
+        });
+
+        $scope.timesheet.tagArr = angular.copy(temp);
+        $scope.$broadcast('timer-reset');
+    };
+
     $scope.continue_entry = function(uuid, addTimesheetForm) {
+
         if($scope.timerRunning) {
             $scope.stopTimer(addTimesheetForm);
             $scope.startTimer();
@@ -284,16 +294,14 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         var hours   = Math.floor(sec_num / 3600);
         var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
         var seconds = sec_num - (hours * 3600) - (minutes * 60);
-        minutes = minutes/60;
-        var total_mins = (hours+minutes)* 100;
-        return total_hrs = Math.round((total_mins/ 100));
+
         if (hours   < 10) {hours   = "0"+hours;}
         if (minutes < 10) {minutes = "0"+minutes;}
         if (seconds < 10) {seconds = "0"+seconds;}
         var time    = hours+':'+minutes+':'+seconds;
 
 
-        //return time;
+        return time;
     }
 
 
@@ -340,20 +348,18 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
             response.start_time = $scope.timesheet.start_time;
             response.end_time = $scope.timesheet.end_time;
-            console.log("response", response);
+
             /* Send Data to server */
             timesheet.saveTimesheet(response).success(function(data) {
                 response.status = 1;
                 OfflineStorage.addDoc(response, 'timesheet').then(function(offlineDbData) {
                     $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
-                    console.log("SAVE", $scope.timesheet);
-
-                    $scope.clearFields();
+                    //$scope.clearFields();
                 });
             }).error(function(data) {
                 OfflineStorage.addDoc(response, 'timesheet').then(function(offlineDbData) {
                     $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
-                    $scope.clearFields();
+                    //$scope.clearFields();
                 });
             });
 
