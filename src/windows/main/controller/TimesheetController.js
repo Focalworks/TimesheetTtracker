@@ -1,133 +1,16 @@
 var uuid = require('node-uuid');
-var _templateBase = '';
-var myApp = angular.module('MainWindow', ['timer', 'myService', 'offlineService', 'userModelService', 'ngRoute']);
 
-myApp.config(['$routeProvider', '$locationProvider',
-    function ($routeProvider, $locationProvider) {
-        $routeProvider.when('/', {
-            templateUrl: _templateBase+'login.html',
-            controller: 'userCtrl'
-        });
-
-        $routeProvider.when('/timesheet', {
-            templateUrl: _templateBase+'timesheet_form.html',
-            controller: 'timesheetCtrl'
-        });
-    }]);
-
-myApp.controller('userCtrl', ['$scope', '$location', '$timeout', 'userModel', 'OfflineStorage',
-    function ($scope, $location, $timeout, userModel, OfflineStorage) {
-        OfflineStorage
-            .init().then(function(db){
-
-                $scope.userObject =  db.getDocs('user');
-
-                if($scope.userObject && $scope.userObject[0] && $scope.userObject[0].id)
-                {
-                    $location.path('/timesheet');
-                }
-                /*Methods*/
-                angular.extend($scope, {
-                    userObject: { email:'', password:'' },
-                    doLogin: function (doLogin) {
-                        $scope.loginStatus = false;
-
-                        var data = {
-                            email: $scope.userLogin.email,
-                            password: $scope.userLogin.password
-                        };
-
-                        userModel.doLogin(data).success(function (response) {
-                            OfflineStorage.truncateDb('user');
-                            OfflineStorage.addDoc(response, 'user');
-                            $location.path('/timesheet');
-                        }).error(function (data, status, header) {
-                            $scope.loginStatus = true;
-                            $scope.error = true;
-                            $scope.errorMsg = data.message;
-                        });
-                    }
-                });
-            });
-    }
-]);
-
-myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope','$interval', function($scope,OfflineStorage,timesheet, $rootScope, $interval) {
-    $scope.timeEntries = [];
-    $scope.projects = {};
-    $scope.timesheet = {};
-
-    window.addEventListener('online', function() {
-        //console.log(test);
-    });
-
+myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  function(timesheet, OfflineStorage, $scope) {
     var syncData = false;
 
-    /* Initial Data Fetch From DB */
-    OfflineStorage
-        .init()
-        .then(function (db) {
-
-            /* Load TimeEnteries From Offline and Sync Data to Online*/
-             var timeEntries = db.getDocs('timesheet', 'all');
-
-            if(timeEntries.length) {
-                angular.forEach(timeEntries, function(data, key) {
-                    if(!data.status) {
-                        syncData = true;
-                    }
-                });
-
-                if(syncData) {
-                    $scope.synData(timeEntries); /* Sync data to online for status 0 */
-                }
-            }
-
-            /* Load timeEntries Form Online */
-            timesheet.getTimesheet().success(function(data) {
-                OfflineStorage.truncateDb('timesheet');
-
-                $scope.timeEntries = data;
-
-                angular.forEach($scope.timeEntries, function (timeEntry, key) {
-                    OfflineStorage.addDoc(timeEntry, 'timesheet');  /* Add entry */
-                });
-            }).error(function(e) {
-                $scope.timeEntries = db.getDocs('timesheet'); /* Load offline Data on error */
-            });
-
-
-            /* Load Projects */
-            $scope.timesheet.projectArr = db.getDocs('projects');
-            if(!$scope.timesheet.projectArr.length) {
-                timesheet.getProjects().success(function(data) {
-                    $scope.timesheet.projectArr = data;
-                    angular.forEach($scope.timesheet.projectArr, function (project, key) {
-                        OfflineStorage.addDoc(project, 'projects'); /* ADD Projects */
-                    });
-                });
-            }
-
-            /* Load Tags */
-            var tagsObj = db.getDocs('tags');
-            $scope.timesheet.tagArr = (tagsObj.length) ? tagsObj[0].tags : {};
-
-            if(!$scope.timesheet.tagArr.length) {
-                timesheet.getTags().success(function(data) {
-                    $scope.timesheet.tagArr = data.tags;
-                    OfflineStorage.addDoc(data, 'tags');  /*Update status of entry */
-                });
-            }
-
-            OfflineStorage
-                .reload()
-                .then(function () {
-                    $scope.timeEntries =  db.getDocs('timesheet');
-                });
-        });
+    $scope.userObject =  OfflineStorage.getDocs('user');
+    if($scope.userObject.length) {
+        $scope.uid = $scope.userObject[0].id;
+    }
 
     /* Helper Function to sync data to online */
-    $scope.synData = function(TimesheetData) {
+    $scope.syncData = function(TimesheetData) {
+        console.log("INSIDE SYNC 334")
         timesheet.syncTimesheets(TimesheetData).success(function (response) {
             angular.forEach(TimesheetData, function (data, key) {
                 OfflineStorage.updateTimesheetStatus(data.uuid); /* Update status of entry */
@@ -136,9 +19,55 @@ myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope
         });
     };
 
-}]);
 
-myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  function(timesheet, OfflineStorage, $scope) {
+    /* Load TimeEnteries From Offline and Sync Data to Online*/
+    var timeEntries = OfflineStorage.getDocs('timesheet', 'all');
+
+    if(timeEntries.length) {
+        angular.forEach(timeEntries, function(data, key) {
+            if(!data.status) {
+                syncData = true;
+            }
+        });
+
+        if(syncData) {
+            console.log("INSIDE SYNC")
+            $scope.syncData(timeEntries); /* Sync data to online for status 0 */
+        }
+    }
+
+    /* Load timeEntries Form Online */
+    timesheet.getTimesheet($scope.uid).success(function(data) {
+        OfflineStorage.truncateDb('timesheet');
+
+        $scope.timeEntries = data;
+
+        angular.forEach($scope.timeEntries, function (timeEntry, key) {
+            OfflineStorage.addDoc(timeEntry, 'timesheet');  /* Add entry */
+        });
+    }).error(function(e) {
+        $scope.timeEntries = OfflineStorage.getDocs('timesheet'); /* Load offline Data on error */
+    });
+
+
+    /* Load Projects */
+    if(!$scope.timesheet.projectArr.length) {
+        timesheet.getProjects().success(function(data) {
+            $scope.timesheet.projectArr = data;
+            angular.forEach($scope.timesheet.projectArr, function (project, key) {
+                OfflineStorage.addDoc(project, 'projects'); /* ADD Projects */
+            });
+        });
+    }
+
+    /* Load Tags */
+    if(!$scope.timesheet.tagArr.length) {
+        timesheet.getTags().success(function(data) {
+            $scope.timesheet.tagArr = data.tags;
+            OfflineStorage.addDoc(data, 'tags');  /*Update status of entry */
+        });
+    }
+
     /*$scope.timesheet = {};
      $scope.timesheet.projectArr = ['Fashion App', 'Sunpharma'];
      $scope.timesheet.tagArr = {RND: false, Development: false};*/
@@ -348,6 +277,8 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
             response.start_time = $scope.timesheet.start_time;
             response.end_time = $scope.timesheet.end_time;
+
+            response.uid = $scope.uid;
 
             /* Send Data to server */
             timesheet.saveTimesheet(response).success(function(data) {

@@ -9,7 +9,7 @@ var ipc = require("electron").ipcRenderer,
 var offlineService = angular.module('offlineService', []);
 
 offlineService.service('OfflineStorage', ['$q', function($q) {
-    this.db = new loki(path.resolve(__dirname, '../../..', 'app.db'));
+    this.db = new loki(path.resolve(__dirname, '../../../..', 'app.db'));
     this.timesheetCollection = null;
     this.projectCollection = null;
     this.tagCollection = null;

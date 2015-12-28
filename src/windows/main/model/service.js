@@ -7,8 +7,8 @@ myService.service('timesheet', ['$http', '$rootScope', function ($http, $rootSco
 
     //var baseUrl = "http://localhost/timesheet/public/";
 
-    this.getTimesheet = function () {
-        return $http.get(baseUrl + 'timesheet');
+    this.getTimesheet = function (uid) {
+        return $http.get(baseUrl + 'timesheet' + '/' + uid);
     };
 
     this.getProjects = function () {
