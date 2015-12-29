@@ -8,13 +8,13 @@
         </div>
 
         <div class="form-group" ng-class="{'has-error' : addTimesheetForm.project.$error.required && addTimesheetFormSubmit}">
-            <select  ng-model="timesheet.project" ng-options="p.name for p in timesheet.projectArr track by p.id" class="form-control" required  name="project"><option value="">Select</option></select>
+            <select  ng-model="timesheet.project" ng-options="p.name for p in fwToggle.projectArr track by p.id" class="form-control" required  name="project"><option value="">Select</option></select>
             <p ng-show="addTimesheetForm.project.$error.required && addTimesheetFormSubmit"
                class="help-block" >Project is required</p>
         </div>
 
         <div  class="form-group" ng-class="{'has-error' : addTimesheetForm.tag.$error.required && addTimesheetFormSubmit}">
-            <div ng-repeat="(tag,enabled) in timesheet.tagArr">
+            <div ng-repeat="(tag,enabled) in fwToggle.tagArr">
                 <div class="checkbox check-info">
                     <input id="tag-{{$index}}" type="checkbox" ng-model="timesheet.tagArr[tag]" class="form-control" name="tag"/>
                     <label for="tag-{{$index}}">{{tag}}</label>
@@ -24,19 +24,21 @@
                class="help-block" >Tag is required</p>
         </div>
 
-        <div  class="form-group">
+       <!-- <div  class="form-group">
             <label>Start Time</label><input ng-model="timesheet.start_time_format"/>
         </div>
 
         <div  class="form-group">
             <label>End Time</label><input ng-model="timesheet.end_time_format"/>
-        </div>
+        </div>-->
 
         <div  class="form-group">
             <timer interval="1000" auto-start="false" ><span ng-show="hours">{{hours}} hour{{hoursS}}, </span> <span ng-show="minutes">{{minutes}} minute{{minutesS}}, </span>{{seconds}} second{{secondsS}}.</timer>
 
             <button ng-click="startTimer()" ng-disabled="timerRunning" class="btn btn-success" ng-show="!timerRunning">Start Timer</button>
             <button ng-click="stopTimer(addTimesheetForm)" ng-disabled="!timerRunning"  class="btn btn-success" ng-show="timerRunning">Stop Timer</button>
+
+            <a href="#timesheet/add" class="btn">Add manual Entry</a>
         </div>
 
     <!-- <h3>Timer 1: <timer/></h3>

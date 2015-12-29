@@ -17,5 +17,10 @@ myApp.config(['$routeProvider', '$locationProvider',
             templateUrl: './views/timesheet_form.html',
             controller: 'timesheetCtrl'
         });
+
+        $routeProvider.when('/timesheet/add', {
+            templateUrl: './views/timesheet_add_manual_form.html',
+            controller: 'timesheetManualCtrl'
+        });
         $routeProvider.otherwise( { redirectTo: "/timesheet" });
 }]);

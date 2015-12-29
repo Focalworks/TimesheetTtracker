@@ -1,0 +1,37 @@
+<div>
+    <form name="addTimesheetForm" novalidate>
+        <div class="form-group" ng-class="{'has-error' : addTimesheetForm.description.$error.required && addTimesheetFormSubmit}">
+            <input type="text" ng-model="timesheet.description" placeholder="Enter the Description" class="form-control" required name="description"/>
+            <p ng-show="addTimesheetForm.description.$error.required && addTimesheetFormSubmit"
+               class="help-block" >Description is required</p>
+        </div>
+
+        <div class="form-group" ng-class="{'has-error' : addTimesheetForm.project.$error.required && addTimesheetFormSubmit}">
+            <select  ng-model="timesheet.project" ng-options="p.name for p in fwToggle.projectArr track by p.id" class="form-control" required  name="project"><option value="">Select</option></select>
+            <p ng-show="addTimesheetForm.project.$error.required && addTimesheetFormSubmit"
+               class="help-block" >Project is required</p>
+        </div>
+
+        <div  class="form-group" ng-class="{'has-error' : addTimesheetForm.tag.$error.required && addTimesheetFormSubmit}">
+            <div ng-repeat="(tag,enabled) in fwToggle.tagArr">
+                <div class="checkbox check-info">
+                    <input id="tag-{{$index}}" type="checkbox" ng-model="timesheet.tagArr[tag]" class="form-control" name="tag"/>
+                    <label for="tag-{{$index}}">{{tag}}</label>
+                </div>
+            </div>
+            <p ng-show="addTimesheetForm.tag.$error.required && addTimesheetFormSubmit"
+               class="help-block" >Tag is required</p>
+        </div>
+
+        <div  class="form-group" ng-class="{'has-error' : addTimesheetForm.total_time.$error.required && addTimesheetFormSubmit}">
+             <label>Total hours</label><input ng-model="timesheet.total_time" required name="total_time"/>
+            <p ng-show="addTimesheetForm.total_time.$error.required && addTimesheetFormSubmit"
+               class="help-block" >Total Time is required</p>
+         </div>
+
+        <button ng-click="addManualEntry(addTimesheetForm)">Save</button>
+
+
+    </form>
+
+</div>
