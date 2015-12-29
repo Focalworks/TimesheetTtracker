@@ -132,17 +132,19 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
         var d = $q.defer();
         if(this.isLoaded() && this.getCollection('timesheet')) {
             var timesheetData = this.getCollection('timesheet').find({ uuid:  uuid});
-            if(op && op == 'updateRemove') {
-                timesheetData[0].status = 0;
-                timesheetData[0].deleted = 1;
-            }else {
-                timesheetData[0].status = 1;
-                timesheetData[0].deleted = 0;
-            }
+            if(timesheetData) {
+                if (op && op == 'updateRemove') {
+                    timesheetData[0].status = 0;
+                    timesheetData[0].deleted = 1;
+                } else {
+                    timesheetData[0].status = 1;
+                    timesheetData[0].deleted = 0;
+                }
 
-            this.getCollection('timesheet').update(timesheetData);
-            this.db.saveDatabase();
-            d.resolve(this.getCollection('timesheet'));
+                this.getCollection('timesheet').update(timesheetData);
+                this.db.saveDatabase();
+                d.resolve(this.getCollection('timesheet'));
+            }
         } else {
             d.reject(new Error('DB NOT READY'));
         }

@@ -12,6 +12,8 @@ myApp.controller('timesheetManualCtrl', ['timesheet','OfflineStorage','$scope','
         $scope.uid = $scope.userObject[0].id;
     }
 
+    $scope.timesheet.tagArr = $scope.fwToggle.tagArr;
+
     /* Validate Form Fields */
     $scope.validate_fields = function(addTimesheetForm) {
         var valid = false;

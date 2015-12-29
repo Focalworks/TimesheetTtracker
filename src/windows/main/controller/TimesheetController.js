@@ -9,13 +9,14 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         $scope.uid = $scope.userObject[0].id;
     }
 
+    $scope.timesheet.tagArr = $scope.fwToggle.tagArr;
+
     /* Helper Function to sync data to online */
     $scope.syncData = function(TimesheetData) {
         timesheet.syncTimesheets(TimesheetData).success(function (response) {
             angular.forEach(TimesheetData, function (data, key) {
                 OfflineStorage.updateTimesheetStatus(data.uuid); /* Update status of entry */
             });
-            //$scope.timeEntries = OfflineStorage.getDocs('timesheet');
         });
     };
 
@@ -30,23 +31,24 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         });
 
         if(syncData) {
-            console.log("INSIDE SYNC")
             $scope.syncData(timeEntries); /* Sync data to online for status 0 */
         }
     }
 
     /* Load timeEntries Form Online */
-    timesheet.getTimesheet($scope.uid).success(function(data) {
-        OfflineStorage.truncateDb('timesheet');
-
-        $scope.timeEntries = data;
-
-        angular.forEach($scope.timeEntries, function (timeEntry, key) {
-            OfflineStorage.addDoc(timeEntry, 'timesheet');  /* Add entry */
+    if(!syncData) {
+        timesheet.getTimesheet($scope.uid).success(function (data) {
+            OfflineStorage.truncateDb('timesheet');
+            $scope.timeEntries = data;
+            angular.forEach($scope.timeEntries, function (timeEntry, key) {
+                OfflineStorage.addDoc(timeEntry, 'timesheet');
+                /* Add entry */
+            });
+        }).error(function (e) {
+            $scope.timeEntries = OfflineStorage.getDocs('timesheet');
+            /* Load offline Data on error */
         });
-    }).error(function(e) {
-        $scope.timeEntries = OfflineStorage.getDocs('timesheet'); /* Load offline Data on error */
-    });
+    }
 
     $scope.addTimesheetFormSubmit = false;
     var currentDate = new Date().getTime();
@@ -189,7 +191,6 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         $scope.timesheet.project.name = timeEntry[0].project;
         $scope.timesheet.project.id = timeEntry[0].project_id;
         $scope.timesheet.tagArr = timeEntry[0].tags;
-        console.log("CONTINUE", timeEntry);
 
     };
 
@@ -230,7 +231,6 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
                 response.status = 1;
                 OfflineStorage.addDoc(response, 'timesheet').then(function(offlineDbData) {
                     $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
-                    //$scope.clearFields();
                 });
             }).error(function(data) {
                 OfflineStorage.addDoc(response, 'timesheet').then(function(offlineDbData) {
