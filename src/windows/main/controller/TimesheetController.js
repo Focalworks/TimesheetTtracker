@@ -10,7 +10,6 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
     /* Helper Function to sync data to online */
     $scope.syncData = function(TimesheetData) {
-        console.log("INSIDE SYNC 334")
         timesheet.syncTimesheets(TimesheetData).success(function (response) {
             angular.forEach(TimesheetData, function (data, key) {
                 OfflineStorage.updateTimesheetStatus(data.uuid); /* Update status of entry */
@@ -18,7 +17,6 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
             //$scope.timeEntries = OfflineStorage.getDocs('timesheet');
         });
     };
-
 
     /* Load TimeEnteries From Offline and Sync Data to Online*/
     var timeEntries = OfflineStorage.getDocs('timesheet', 'all');
@@ -68,17 +66,15 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         });
     }
 
-    /*$scope.timesheet = {};
-     $scope.timesheet.projectArr = ['Fashion App', 'Sunpharma'];
-     $scope.timesheet.tagArr = {RND: false, Development: false};*/
+
     $scope.addTimesheetFormSubmit = false;
 
     var currentDate = new Date().getTime();
 
-        $scope.timesheet.start_time_format = getFormattedTime(currentDate);
-        $scope.timesheet.end_time_format = getFormattedTime(currentDate);
+    $scope.timesheet.start_time_format = getFormattedTime(currentDate);
+    $scope.timesheet.end_time_format = getFormattedTime(currentDate);
 
-        $scope.timerRunning = false;
+    $scope.timerRunning = false;
 
         /* Start Timer on click */
         $scope.startTimer = function (){
@@ -212,45 +208,8 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
     };
 
-
-    function toSeconds( time ) {
-        var parts = time.split(':');
-        return (+parts[0]) * 60 * 60 + (+parts[1]) * 60 + (+parts[2]);
-    }
-
-    function toHHMMSS(sec) {
-        var sec_num = parseInt(sec, 10); // don't forget the second parm
-        var hours   = Math.floor(sec_num / 3600);
-        var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-        var seconds = sec_num - (hours * 3600) - (minutes * 60);
-
-        if (hours   < 10) {hours   = "0"+hours;}
-        if (minutes < 10) {minutes = "0"+minutes;}
-        if (seconds < 10) {seconds = "0"+seconds;}
-        var time    = hours+':'+minutes+':'+seconds;
-
-
-        return time;
-    }
-
-
-    function groupBy(arr, key) {
-            var newArr = [],
-                types = {},
-                newItem, i, j, cur;
-            for (i = 0, j = arr.length; i < j; i++) {
-                cur = arr[i];
-                if (!(cur[key] in types)) {
-                    types[cur[key]] = { date: cur[key], data: [] , totalDuration: 0, dateTime: cur['dateTime']};
-                    newArr.push(types[cur[key]]);
-                }
-                types[cur[key]].data.push(cur);
-            }
-            return newArr;
-        }
-
-        /* Timer Stopped */
-        $scope.$on('timer-stopped', function (event, data){
+    /* Timer Stopped */
+    $scope.$on('timer-stopped', function (event, data){
             var response = {};
             response.description = $scope.timesheet.description;
 
@@ -359,4 +318,41 @@ function doesConnectionExist() {
     } catch (e) {
         return false;
     }
+}
+
+
+function toSeconds( time ) {
+    var parts = time.split(':');
+    return (+parts[0]) * 60 * 60 + (+parts[1]) * 60 + (+parts[2]);
+}
+
+function toHHMMSS(sec) {
+    var sec_num = parseInt(sec, 10); // don't forget the second parm
+    var hours   = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    if (hours   < 10) {hours   = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+    var time    = hours+':'+minutes+':'+seconds;
+
+
+    return time;
+}
+
+
+function groupBy(arr, key) {
+    var newArr = [],
+        types = {},
+        newItem, i, j, cur;
+    for (i = 0, j = arr.length; i < j; i++) {
+        cur = arr[i];
+        if (!(cur[key] in types)) {
+            types[cur[key]] = { date: cur[key], data: [] , totalDuration: 0, dateTime: cur['dateTime']};
+            newArr.push(types[cur[key]]);
+        }
+        types[cur[key]].data.push(cur);
+    }
+    return newArr;
 }
