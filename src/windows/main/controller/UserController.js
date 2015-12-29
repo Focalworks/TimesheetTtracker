@@ -12,26 +12,31 @@ myApp.controller('userCtrl', ['$scope', '$location', '$timeout', 'userModel', 'O
         /*Methods*/
         angular.extend($scope, {
             //userObject: { email:'', password:'' },
-            doLogin: function (doLogin) {
-                var data = {
-                    email: $scope.userLogin.email,
-                    password: $scope.userLogin.password
-                };
+            loginFormSubmit: false,
+            doLogin: function (loginForm) {
+                if(loginForm.$valid) {
+                    var data = {
+                        email: $scope.userLogin.email,
+                        password: $scope.userLogin.password
+                    };
 
-                userModel.doLogin(data).success(function (response) {
-                    OfflineStorage.truncateDb('user');
-                    OfflineStorage.addDoc(response, 'user');
-                    //$scope.userObject =  OfflineStorage.getDocs('user');
-                    $scope.user.data = response;
-                    console.log($scope.user.data);
-                    $scope.user.loggedInUser = true;
-                    $location.path('/timesheet');
-                }).error(function (data, status, header) {
-                    $scope.user.loggedInUser = false;
-                    $scope.user.data = {};
-                    $scope.error = true;
-                    $scope.errorMsg = data.message;
-                });
+                    userModel.doLogin(data).success(function (response) {
+                        OfflineStorage.truncateDb('user');
+                        OfflineStorage.addDoc(response, 'user');
+                        //$scope.userObject =  OfflineStorage.getDocs('user');
+                        $scope.user.data = response;
+                        $scope.user.loggedInUser = true;
+                        $location.path('/timesheet');
+                    }).error(function (data, status, header) {
+                        $scope.user.loggedInUser = false;
+                        $scope.user.data = {};
+                        $scope.error = true;
+                        $scope.errorMsg = data.message;
+                    });
+                } else {
+                    $scope.loginFormSubmit = true;
+                    console.log('form has error');
+                }
             },
 
             doLogout: function() {
