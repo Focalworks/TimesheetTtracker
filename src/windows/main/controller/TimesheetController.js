@@ -49,7 +49,6 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         $scope.timeEntries = OfflineStorage.getDocs('timesheet'); /* Load offline Data on error */
     });
 
-
     /* Load Projects */
     if(!$scope.timesheet.projectArr.length) {
         timesheet.getProjects().success(function(data) {

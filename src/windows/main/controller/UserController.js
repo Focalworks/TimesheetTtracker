@@ -1,29 +1,46 @@
 myApp.controller('userCtrl', ['$scope', '$location', '$timeout', 'userModel', 'OfflineStorage', '$rootScope',
     function ($scope, $location, $timeout, userModel, OfflineStorage,$rootScope) {
 
-            /*Methods*/
-            angular.extend($scope, {
-                //userObject: { email:'', password:'' },
-                doLogin: function (doLogin) {
-                    $scope.loginStatus = false;
+        $scope.userObject =  OfflineStorage.getDocs('user');
 
-                    var data = {
-                        email: $scope.userLogin.email,
-                        password: $scope.userLogin.password
-                    };
+        if($scope.userObject && $scope.userObject[0] && $scope.userObject[0].id)
+        {
+            $scope.user.data = $scope.userObject[0];
+            $location.path('/timesheet');
+            $scope.user.loggedInUser = true;
+        }
+        /*Methods*/
+        angular.extend($scope, {
+            //userObject: { email:'', password:'' },
+            doLogin: function (doLogin) {
+                var data = {
+                    email: $scope.userLogin.email,
+                    password: $scope.userLogin.password
+                };
 
-                    userModel.doLogin(data).success(function (response) {
-                        OfflineStorage.truncateDb('user');
-                        OfflineStorage.addDoc(response, 'user');
-                        $scope.userObject =  OfflineStorage.getDocs('user');
-                        $scope.loggedInUser = true;
-                        $location.path('/timesheet');
-                    }).error(function (data, status, header) {
-                        $scope.loginStatus = true;
-                        $scope.error = true;
-                        $scope.errorMsg = data.message;
-                    });
-                }
-            });
+                userModel.doLogin(data).success(function (response) {
+                    OfflineStorage.truncateDb('user');
+                    OfflineStorage.addDoc(response, 'user');
+                    //$scope.userObject =  OfflineStorage.getDocs('user');
+                    $scope.user.data = response;
+                    console.log($scope.user.data);
+                    $scope.user.loggedInUser = true;
+                    $location.path('/timesheet');
+                }).error(function (data, status, header) {
+                    $scope.user.loggedInUser = false;
+                    $scope.user.data = {};
+                    $scope.error = true;
+                    $scope.errorMsg = data.message;
+                });
+            },
+
+            doLogout: function() {
+                OfflineStorage.truncateDb('user');
+                userModel.doUserLogout();
+                $scope.user.loggedInUser = false;
+                $scope.user.data = {};
+                $location.path('/');
+            }
+        });
     }
 ]);

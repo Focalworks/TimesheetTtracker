@@ -9,7 +9,8 @@ myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope
         projects: {},
         timesheet: {},
         uid: 0,
-        loggedInUser: false
+        user: {loggedInUser:false, data:[]},
+
     });
 
 
@@ -17,7 +18,6 @@ myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope
     OfflineStorage
         .init()
         .then(function (db) {
-            $scope.userObject =  db.getDocs('user');
             $scope.timesheet.projectArr = db.getDocs('projects');
             var tagsObj = db.getDocs('tags');
             $scope.timesheet.tagArr = (tagsObj.length) ? tagsObj[0].tags : {};
@@ -26,19 +26,6 @@ myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope
                 .reload()
                 .then(function () {
                     $scope.timeEntries =  db.getDocs('timesheet');
-                    $scope.userObject =  db.getDocs('user');
-
-                    if($scope.userObject.length) {
-                        $scope.loggedInUser = true;
-                    }
                 });
         });
-
-
-    $scope.$watch('loggedInUser', function(value) {
-        if(value) {
-            $location.path('/timesheet');
-        }
-    });
-
 }]);
