@@ -63,6 +63,7 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         $scope.timesheet.end_time = currentDate;
         $scope.timesheet.start_time_format = getFormattedTime(currentDate);
         $scope.timesheet.end_time_format = getFormattedTime(currentDate);
+        $scope.showForm = false;
     };
 
     /* Stop Timer on click */
@@ -76,8 +77,10 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
             $scope.timerRunning = false;
             $scope.addTimesheetFormSubmit = false;
             $scope.clearFields();
+            $scope.showForm = false;
         }else {
             $scope.addTimesheetFormSubmit = true;
+            $scope.showForm = true;
         }
     };
 

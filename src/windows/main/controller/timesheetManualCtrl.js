@@ -5,6 +5,8 @@ var uuid = require('node-uuid');
 
 myApp.controller('timesheetManualCtrl', ['timesheet','OfflineStorage','$scope','$location',  function(timesheet, OfflineStorage, $scope, $location) {
 
+    $scope.timesheet = {};
+
     $scope.userObject =  OfflineStorage.getDocs('user');
     if($scope.userObject.length) {
         $scope.uid = $scope.userObject[0].id;
