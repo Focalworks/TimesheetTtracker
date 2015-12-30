@@ -20,6 +20,7 @@ angular.module('userModelService' , ['ngCookies'])
          * @param  {array} loginData
          * @return {promise}
          */
+        var baseUrl = "http://localhost/timesheet/public/client-api/";
         userModel.doLogin = function (loginData) {
             return $http({
                 headers: {
@@ -29,16 +30,17 @@ angular.module('userModelService' , ['ngCookies'])
                 method: "POST",
                 data: {
                     email: loginData.email,
-                    password: loginData.password
+                    password: loginData.password,
+                    grant_type:GRANT_TYPE,
+                    client_id:CLIENT_ID
                 }
             }).success(function (response) {
-                ///"file://" + __dirname +
-                var cookievalue = JSON.stringify(response);
+                var cookievalue = JSON.stringify(response.data);
                 $cookies.put('auth', cookievalue);
-                return response;
+                return response.data;
 
             }).error(function (data, status, headers) {
-                //snackbar.create(data, 5000);
+                return {'message': 'Unknown error, Please try again later'};
             });
         }
 

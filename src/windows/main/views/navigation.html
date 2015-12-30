@@ -8,14 +8,17 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Toggle</a>
+            <a class="navbar-brand" href="#/timer">
+                <img class="visible-xs" src="images/logo.png"> <!-- this one will be visible on mobile -->
+                <img class="hidden-xs" src="images/logo.png"> <!-- this one will be visible on everything else -->
+            </a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Timer <span class="sr-only">(current)</span></a></li>
-                <li><a href="#">Project</a></li>
+                <li class="active"><a href="#/timer">Timer <span class="sr-only">(current)</span></a></li>
+                <li><a href="#/project">Project</a></li>
                 <li class="dropdown">
                     <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Report <span class="caret"></span></a>
                     <ul class="dropdown-menu">

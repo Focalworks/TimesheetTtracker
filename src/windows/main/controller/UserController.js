@@ -11,10 +11,10 @@ myApp.controller('userCtrl', ['$scope', '$location', '$timeout', 'userModel', 'O
         }
         /*Methods*/
         angular.extend($scope, {
-            //userObject: { email:'', password:'' },
             loginFormSubmit: false,
             doLogin: function (loginForm) {
                 if(loginForm.$valid) {
+
                     var data = {
                         email: $scope.userLogin.email,
                         password: $scope.userLogin.password
@@ -22,20 +22,17 @@ myApp.controller('userCtrl', ['$scope', '$location', '$timeout', 'userModel', 'O
 
                     userModel.doLogin(data).success(function (response) {
                         OfflineStorage.truncateDb('user');
-                        OfflineStorage.addDoc(response, 'user');
-                        //$scope.userObject =  OfflineStorage.getDocs('user');
-                        $scope.user.data = response;
+                        OfflineStorage.addDoc(response.data, 'user');
+                        $scope.user.data = response.data;
                         $scope.user.loggedInUser = true;
                         $location.path('/timesheet');
+
                     }).error(function (data, status, header) {
                         $scope.user.loggedInUser = false;
                         $scope.user.data = {};
                         $scope.error = true;
-                        $scope.errorMsg = data.message;
+                        $scope.errorMsg = (data == null)?'Unknown error, Please try again later':data.message;
                     });
-                } else {
-                    $scope.loginFormSubmit = true;
-                    console.log('form has error');
                 }
             },
 
