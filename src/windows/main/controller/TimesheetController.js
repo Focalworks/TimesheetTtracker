@@ -1,5 +1,6 @@
 var uuid = require('node-uuid');
-
+//var ipc = require("electron").ipcMain;
+var ipcR = require("electron").ipcRenderer;
 myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  function(timesheet, OfflineStorage, $scope) {
     var syncData = false;
 
@@ -79,6 +80,12 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
         $scope.timerRunning = false;
 
+
+    ipcR.on('get_timer_status', function(event, arg) {
+        if($scope.timerRunning == false) {
+            ipcR.send('start_idle_timer', $scope.timerRunning);
+        }
+    });
         /* Start Timer on click */
         $scope.startTimer = function (){
             var currentDate = new Date().getTime();

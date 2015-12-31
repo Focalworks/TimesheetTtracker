@@ -13,7 +13,6 @@ myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope
 
     });
 
-
     /* Load Offline Database */
     OfflineStorage
         .init()

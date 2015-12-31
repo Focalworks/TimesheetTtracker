@@ -1,8 +1,9 @@
 var app = require('app');
 browserWindow = require('browser-window');
 var ipc = require("electron").ipcMain;
-const Tray = require("electron").Tray;
-var idleTime;
+var ipcR = require("electron").ipcRenderer;
+
+var idleTime = 0;
 var idleInterval;
 var mainWindow = null;
 
@@ -10,49 +11,12 @@ app.on('ready', function() {
     mainWindow = new browserWindow({width: 900, height: 700,icon: "file://" + __dirname + '/windows/main/images/logo.png'});
     mainWindow.loadURL("file://" + __dirname + '/windows/main/index.html');
     mainWindow.openDevTools();
-
-    //aboutDialogOptions = {
-    //    type: "info",
-    //    title: "About Dialog",
-    //    buttons: ["Ok"],
-    //    message: "Dialog Test",
-    //    detail: "dialog test by "
-    //};
-    //const dialog = require('electron').dialog;
-    //console.log(dialog.showMessageBox(mainWindow,aboutDialogOptions));
-
-
-
-    //var appIcon = new Tray('/windows/main/images/');
-    //var contextMenu = Menu.buildFromTemplate([
-    //    { label: 'Item1', type: 'radio' },
-    //    { label: 'Item2', type: 'radio' },
-    //    { label: 'Item3', type: 'radio', checked: true },
-    //    { label: 'Item4', type: 'radio' }
-    //]);
-    //appIcon.setToolTip('This is my application.');
-    //appIcon.setContextMenu(contextMenu);
-
-
-
-
 });
-const dialog = require('electron').dialog;
 
 app.on('browser-window-blur', function() {
-    console.log('browser window blur');
-    aboutDialogOptions = {
-        type: "info",
-        title: "About Dialog",
-        buttons: ["Ok"],
-        message: "Dialog Test",
-        detail: "dialog test by "
-    };
-    startInterval();
-    //if(!dialog.showMessageBox(mainWindow,aboutDialogOptions)) {
-    //
-    //console.log(dialog.showMessageBox(mainWindow,aboutDialogOptions));
-    //}
+    //get timer status to start idle state timer
+    //to check whether timer is on or off
+    var val = mainWindow.webContents.send('get_timer_status');
 });
 
 app.on('browser-window-focus', function() {
@@ -60,17 +24,25 @@ app.on('browser-window-focus', function() {
     idleTime = 0;
 })
 
-ipc.on('online-status-changed', function(event, status) {
-    /* console.log("Status changed");
-     console.log(status);*/
-});
-
 function startInterval() {
-    idleInterval = setInterval(timerIncrement, 60000); //call every one minute
+    //count will increment every 5 minutes
+    idleInterval = setInterval(timerIncrement, 60000*5);//60000 //call every one minute
 }
+
 function timerIncrement() {
     idleTime = idleTime + 1;
-    if (idleTime > 1) { // 20 minutes
 
+    //count will increment every 5 minutes - display notification after 30 minutes (5 x ? = 30 minutes)
+    if (idleTime >= 6) { // 2 minutes
+        //show notification to user and reset timer
+        mainWindow.webContents.executeJavaScript('new Notification("Oh, you forget to start timer")');
+        idleTime = 0;
     }
 }
+
+//to start counter if timesheet timer is off
+ipc.on('start_idle_timer', function(event, status) {
+    if(status == false) {
+        startInterval();
+    }
+});
