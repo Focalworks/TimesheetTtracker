@@ -34,6 +34,7 @@ angular.module('userModelService' , ['ngCookies'])
             }).success(function (response) {
                 ///"file://" + __dirname +
                 var cookievalue = JSON.stringify(response);
+                console.log(response);
                 $cookies.put('auth', cookievalue);
                 return response;
 

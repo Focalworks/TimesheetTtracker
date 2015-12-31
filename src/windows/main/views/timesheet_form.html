@@ -6,8 +6,8 @@
         <div class="description row"  ng-show="!showForm" ng-init="showForm=false">
 
                 <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
-                   <button ng-click="showForm = true" class="col-xs-6 col-sm-6 col-lg-6 col-md-6 btn" ng-show="!timesheet.description.length">Add Details</button>
-                    <button ng-click="showForm = true" class="col-xs-6 col-sm-6 col-lg-6 col-md-6 btn" ng-show="timesheet.description.length">{{timesheet.description}}</button>
+                   <button ng-click="showForm = true" class="col-xs-6 col-sm-6 col-lg-6 col-md-6 btn" ng-show="!timesheet.desc.length">Add Details</button>
+                    <button ng-click="showForm = true" class="col-xs-6 col-sm-6 col-lg-6 col-md-6 btn" ng-show="timesheet.desc.length">{{timesheet.desc}}</button>
 
                     <div class="col-xs-5 col-sm-5 col-lg-5 col-md-5 ">
                         <div class="pull-right">
@@ -24,7 +24,7 @@
 
         <div class="main-form-container" ng-show="showForm">
             <div class="form-group" ng-class="{'has-error' : addTimesheetForm.description.$error.required && addTimesheetFormSubmit}">
-                <input type="text" ng-model="timesheet.description" placeholder="Enter the Description" class="form-control" required name="description"/>
+                <input type="text" ng-model="timesheet.desc" placeholder="Enter the Description" class="form-control" required name="description"/>
                 <p ng-show="addTimesheetForm.description.$error.required && addTimesheetFormSubmit"
                    class="help-block" >Description is required</p>
             </div>
@@ -36,10 +36,10 @@
             </div>
 
             <div  class="form-group" ng-class="{'has-error' : addTimesheetForm.tag.$error.required && addTimesheetFormSubmit}">
-                <div ng-repeat="(tag,enabled) in timesheet.tagArr">
+                <div ng-repeat="tag in fwToggle.tagArr">
                     <div class="checkbox check-info">
-                        <input id="tag-{{$index}}" type="checkbox" ng-model="timesheet.tagArr[tag]" class="form-control" name="tag"/>
-                        <label for="tag-{{$index}}">{{tag}}</label>
+                        <input id="tag-{{$index}}" type="checkbox" ng-model="timesheet.tagArr[tag.id]" class="form-control" name="tag"/>
+                        <label for="tag-{{$index}}">{{tag.name}}</label>
                     </div>
                 </div>
                 <p ng-show="addTimesheetForm.tag.$error.required && addTimesheetFormSubmit"
@@ -72,11 +72,11 @@
             </h3>
         <table class="table">
             <tr ng-repeat="timeEntry in value.data track by $index">
-                <td class="col-md-3">{{timeEntry.description}}</td>
+                <td class="col-md-3">{{timeEntry.desc}}</td>
                 <td class="col-md-3">{{timeEntry.project}}</td>
                 <td class="col-md-3">{{timeEntry.total_time}}</td>
                 <td class="col-md-2" ng-click="continue_entry(timeEntry.uuid, addTimesheetForm)"><i class="glyphicon glyphicon-play"></i></td>
-                <td class="col-md-2" ng-click="delete_entry(timeEntry.uuid)"><i class="glyphicon glyphicon-remove"></i></td>
+                <td class="col-md-2" ng-click="delete_entry(timeEntry.id)"><i class="glyphicon glyphicon-remove"></i></td>
             </tr>
         </table>
         </div>

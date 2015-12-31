@@ -111,12 +111,12 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
         //}.bind(this);
     };
 
-    this.removeTimeEntry = function(uuid) {
+    this.removeTimeEntry = function(id) {
         //return function() {
             var d = $q.defer();
 
             if(this.isLoaded() && this.getCollection('timesheet')) {
-                var timesheetData = this.getCollection('timesheet').find({ uuid:  uuid});
+                var timesheetData = this.getCollection('timesheet').find({ id:  id});
                 this.getCollection('timesheet').remove(timesheetData);
                 this.db.saveDatabase();
                 d.resolve(true);
@@ -128,10 +128,10 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
         //}.bind(this);
     };
 
-    this.updateTimesheetStatus = function(uuid, op) {
+    this.updateTimesheetStatus = function(id, op) {
         var d = $q.defer();
         if(this.isLoaded() && this.getCollection('timesheet')) {
-            var timesheetData = this.getCollection('timesheet').find({ uuid:  uuid});
+            var timesheetData = this.getCollection('timesheet').find({ id:  id});
             if(timesheetData) {
                 if (op && op == 'updateRemove') {
                     timesheetData[0].status = 0;
@@ -154,6 +154,9 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
 
     this.getDocs = function(collection, op) {
         if(!op) {
+            /*console.log("GETDOCS", collection);
+
+            console.log("GET RESULT", this.getCollection(collection).data)*/
             return (this.getCollection(collection)) ? this.getCollection(collection).find({deleted: 0}) : null;
         }else {
             return (this.getCollection(collection)) ? this.getCollection(collection).data : null;

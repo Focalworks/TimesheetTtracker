@@ -8,7 +8,7 @@ myService.service('timesheet', ['$http', '$rootScope', function ($http, $rootSco
     //var baseUrl = "http://localhost/timesheet/public/";
 
     this.getTimesheet = function (uid) {
-        return $http.get(baseUrl + 'timesheet' + '/' + uid);
+        return $http.get(baseUrl + 'get-timeentries-by-uid');
     };
 
     this.getProjects = function () {
@@ -33,7 +33,7 @@ myService.service('timesheet', ['$http', '$rootScope', function ($http, $rootSco
         })
     };
 
-    this.removeTimesheet = function (uuid) {
+    this.removeTimesheet = function (id) {
 
         var url = baseUrl + 'timesheet/delete';
         var method = "POST"
@@ -43,7 +43,7 @@ myService.service('timesheet', ['$http', '$rootScope', function ($http, $rootSco
             },
             url: url,
             method: method,
-            data: {uuid:uuid}
+            data: {id:id}
         })
     };
 

@@ -9,18 +9,18 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         $scope.uid = $scope.userObject[0].id;
     }
 
-    $scope.timesheet.tagArr = $scope.fwToggle.tagArr;
+    //$scope.timesheet.tagArr = $scope.fwToggle.tagArr;
 
     /* Helper Function to sync data to online */
     $scope.syncData = function(TimesheetData) {
         timesheet.syncTimesheets(TimesheetData).success(function (response) {
             angular.forEach(TimesheetData, function (data, key) {
-                OfflineStorage.updateTimesheetStatus(data.uuid); /* Update status of entry */
+                OfflineStorage.updateTimesheetStatus(data.id); /* Update status of entry */
             });
         });
     };
 
-    /* Load TimeEnteries From Offline and Sync Data to Online*/
+    /* Load TimeEnteries From Offline and Sync Data to Online */
     var timeEntries = OfflineStorage.getDocs('timesheet', 'all');
 
     if(timeEntries.length) {
@@ -39,9 +39,12 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
     if(!syncData) {
         timesheet.getTimesheet($scope.uid).success(function (data) {
             OfflineStorage.truncateDb('timesheet');
-            $scope.timeEntries = data;
-            angular.forEach($scope.timeEntries, function (timeEntry, key) {
+            $scope.timeEntries = [];
+            angular.forEach(data, function (timeEntry, key) {
+                timeEntry.uuid = uuid.v4();
+                timeEntry.status = 1;
                 OfflineStorage.addDoc(timeEntry, 'timesheet');
+                $scope.timeEntries.push(timeEntry);
                 /* Add entry */
             });
         }).error(function (e) {
@@ -141,12 +144,12 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
     }, true);
 
-    $scope.delete_entry = function(uuid) {
+    $scope.delete_entry = function(id) {
         if(confirm("Deleted Time Entries cannot be restored"))
         {
             /* Send Data to server */
-            timesheet.removeTimesheet(uuid).success(function(data) {
-                OfflineStorage.removeTimeEntry(uuid).then(function() {
+            timesheet.removeTimesheet(id).success(function(data) {
+                OfflineStorage.removeTimeEntry(id).then(function() {
                     $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
                 });
             }).error(function(data) {
@@ -165,13 +168,14 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
     $scope.clearFields = function() {
         $scope.timesheet.project = {};
-        $scope.timesheet.description = "";
-        var temp = angular.copy($scope.timesheet.tagArr);
+        $scope.timesheet.desc = "";
+        $scope.timesheet.tagArr = {};
+        /*var temp = angular.copy($scope.timesheet.tagArr);
         angular.forEach(temp, function(tag, key) {
             temp[key] = false;
         });
 
-        $scope.timesheet.tagArr = angular.copy(temp);
+        $scope.timesheet.tagArr = angular.copy(temp);*/
         $scope.$broadcast('timer-reset');
     };
 
@@ -185,19 +189,26 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         }
 
         var timeEntry =  OfflineStorage.getSingleTimeEntry(uuid);
-        $scope.timesheet.description = timeEntry[0].description;
+        $scope.timesheet.desc = timeEntry[0].desc;
 
         $scope.timesheet.project = {};
         $scope.timesheet.project.name = timeEntry[0].project;
         $scope.timesheet.project.id = timeEntry[0].project_id;
-        $scope.timesheet.tagArr = timeEntry[0].tags;
+
+        var tagsArr = timeEntry[0].tags.split(',');
+        $scope.timesheet.tagArr = {};
+        angular.forEach(tagsArr, function(tag, key) {
+            $scope.timesheet.tagArr[tag] = true;
+        });
+
+        //$scope.timesheet.tagArr = timeEntry[0].tags;
 
     };
 
     /* Timer Stopped */
     $scope.$on('timer-stopped', function (event, data){
             var response = {};
-            response.description = $scope.timesheet.description;
+            response.desc = $scope.timesheet.desc;
 
             response.project = ($scope.timesheet.project && $scope.timesheet.project.name != undefined) ? $scope.timesheet.project.name : '';
             response.project_id = ($scope.timesheet.project && $scope.timesheet.project.id != undefined) ? $scope.timesheet.project.id : '';
@@ -219,7 +230,16 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
             response.status = 0;
             response.uuid = uuid.v4();
 
-            response.tags = $scope.timesheet.tagArr;
+            //var tagsArr = timeEntry[0].tag.split(',');
+            //$scope.timesheet.tagArr = {};
+            var temp = [];
+            angular.forEach($scope.timesheet.tagArr, function(value, tag) {
+                if(value) {
+                    temp.push(tag);
+                }
+            });
+
+            response.tags = temp.join(',');
 
             response.start_time = $scope.timesheet.start_time;
             response.end_time = $scope.timesheet.end_time;
@@ -228,14 +248,14 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
             /* Send Data to server */
             timesheet.saveTimesheet(response).success(function(data) {
-                response.status = 1;
-                OfflineStorage.addDoc(response, 'timesheet').then(function(offlineDbData) {
+                data.status = 1;
+                OfflineStorage.addDoc(data, 'timesheet').then(function(offlineDbData) {
                     $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
                 });
             }).error(function(data) {
+                response.status = 0;
                 OfflineStorage.addDoc(response, 'timesheet').then(function(offlineDbData) {
                     $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
-                    //$scope.clearFields();
                 });
             });
 
