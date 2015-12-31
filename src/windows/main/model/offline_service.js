@@ -77,7 +77,7 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
 
     this.addDoc = function(data, collection) {
         var d = $q.defer();
-
+console.log(data, collection);
         if(this.isLoaded() && this.getCollection(collection)) {
             data.deleted = 0;
             this.getCollection(collection).insert(data);
