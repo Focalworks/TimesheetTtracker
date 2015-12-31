@@ -20,7 +20,7 @@ angular.module('userModelService' , ['ngCookies'])
          * @param  {array} loginData
          * @return {promise}
          */
-        var baseUrl = "http://localhost/timesheet/public/client-api/";
+        //var baseUrl = "http://localhost/timesheet/public/client-api/";
         userModel.doLogin = function (loginData) {
             return $http({
                 headers: {
