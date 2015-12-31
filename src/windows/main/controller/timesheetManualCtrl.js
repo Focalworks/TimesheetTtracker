@@ -12,7 +12,6 @@ myApp.controller('timesheetManualCtrl', ['timesheet','OfflineStorage','$scope','
         $scope.uid = $scope.userObject[0].id;
     }
 
-    $scope.timesheet.tagArr = $scope.fwToggle.tagArr;
 
     /* Validate Form Fields */
     $scope.validate_fields = function(addTimesheetForm) {
@@ -45,7 +44,7 @@ myApp.controller('timesheetManualCtrl', ['timesheet','OfflineStorage','$scope','
     $scope.saveTimesheet = function() {
 
         var response = {};
-        response.description = $scope.timesheet.description;
+        response.desc = $scope.timesheet.desc;
 
         response.project = ($scope.timesheet.project && $scope.timesheet.project.name != undefined) ? $scope.timesheet.project.name : '';
         response.project_id = ($scope.timesheet.project && $scope.timesheet.project.id != undefined) ? $scope.timesheet.project.id : '';
@@ -55,12 +54,20 @@ myApp.controller('timesheetManualCtrl', ['timesheet','OfflineStorage','$scope','
         response.status = 0;
         response.uuid = uuid.v4();
 
-        response.tags = $scope.timesheet.tagArr;
+        var temp = [];
+        angular.forEach($scope.timesheet.tagArr, function(value, tag) {
+            if(value) {
+                temp.push(tag);
+            }
+        });
+
+        response.tags = temp.join(',');
 
         response.start_time = $scope.timesheet.start_time;
+        response.end_time = $scope.timesheet.start_time;
 
         response.uid = $scope.uid;
-
+        console.log(response);
         /* Send Data to server */
         timesheet.saveTimesheet(response).success(function(data) {
             response.status = 1;
