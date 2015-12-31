@@ -1,42 +1,61 @@
 <div>
 
     <form name="addTimesheetForm" novalidate>
-        <div class="form-group" ng-class="{'has-error' : addTimesheetForm.description.$error.required && addTimesheetFormSubmit}">
-            <input type="text" ng-model="timesheet.description" placeholder="Enter the Description" class="form-control" required name="description"/>
-            <p ng-show="addTimesheetForm.description.$error.required && addTimesheetFormSubmit"
-               class="help-block" >Description is required</p>
-        </div>
+        <a href="#timesheet/add" class="btn">Add manual Entry</a>
 
-        <div class="form-group" ng-class="{'has-error' : addTimesheetForm.project.$error.required && addTimesheetFormSubmit}">
-            <select  ng-model="timesheet.project" ng-options="p.name for p in timesheet.projectArr track by p.id" class="form-control" required  name="project"><option value="">Select</option></select>
-            <p ng-show="addTimesheetForm.project.$error.required && addTimesheetFormSubmit"
-               class="help-block" >Project is required</p>
-        </div>
+        <div class="description row"  ng-show="!showForm" ng-init="showForm=false">
 
-        <div  class="form-group" ng-class="{'has-error' : addTimesheetForm.tag.$error.required && addTimesheetFormSubmit}">
-            <div ng-repeat="(tag,enabled) in timesheet.tagArr">
-                <div class="checkbox check-info">
-                    <input id="tag-{{$index}}" type="checkbox" ng-model="timesheet.tagArr[tag]" class="form-control" name="tag"/>
-                    <label for="tag-{{$index}}">{{tag}}</label>
+                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                   <button ng-click="showForm = true" class="col-xs-6 col-sm-6 col-lg-6 col-md-6 btn" ng-show="!timesheet.description.length">Add Details</button>
+                    <button ng-click="showForm = true" class="col-xs-6 col-sm-6 col-lg-6 col-md-6 btn" ng-show="timesheet.description.length">{{timesheet.description}}</button>
+
+                    <div class="col-xs-5 col-sm-5 col-lg-5 col-md-5 ">
+                        <div class="pull-right">
+                           <timer interval="1000" auto-start="false" ><span ng-show="hours">{{hours}} hour{{hoursS}}, </span> <span ng-show="minutes">{{minutes}} min{{minutesS}}, </span>{{seconds}} sec{{secondsS}}.</timer>
+
+                            <button ng-click="startTimer()" ng-disabled="timerRunning" class="btn btn-success" ng-show="!timerRunning">Start Timer</button>
+                            <button ng-click="stopTimer(addTimesheetForm)" ng-disabled="!timerRunning"  class="btn btn-success" ng-show="timerRunning">Stop Timer</button>
+
+                        </div>
+                    </div>
                 </div>
+
+        </div>
+
+        <div class="main-form-container" ng-show="showForm">
+            <div class="form-group" ng-class="{'has-error' : addTimesheetForm.description.$error.required && addTimesheetFormSubmit}">
+                <input type="text" ng-model="timesheet.description" placeholder="Enter the Description" class="form-control" required name="description"/>
+                <p ng-show="addTimesheetForm.description.$error.required && addTimesheetFormSubmit"
+                   class="help-block" >Description is required</p>
             </div>
-            <p ng-show="addTimesheetForm.tag.$error.required && addTimesheetFormSubmit"
-               class="help-block" >Tag is required</p>
-        </div>
 
-        <div  class="form-group">
-            <label>Start Time</label><input ng-model="timesheet.start_time_format"/>
-        </div>
+            <div class="form-group" ng-class="{'has-error' : addTimesheetForm.project.$error.required && addTimesheetFormSubmit}">
+                <select  ng-model="timesheet.project" ng-options="p.name for p in fwToggle.projectArr track by p.id" class="form-control" required  name="project"><option value="">Select</option></select>
+                <p ng-show="addTimesheetForm.project.$error.required && addTimesheetFormSubmit"
+                   class="help-block" >Project is required</p>
+            </div>
 
-        <div  class="form-group">
-            <label>End Time</label><input ng-model="timesheet.end_time_format"/>
-        </div>
+            <div  class="form-group" ng-class="{'has-error' : addTimesheetForm.tag.$error.required && addTimesheetFormSubmit}">
+                <div ng-repeat="(tag,enabled) in timesheet.tagArr">
+                    <div class="checkbox check-info">
+                        <input id="tag-{{$index}}" type="checkbox" ng-model="timesheet.tagArr[tag]" class="form-control" name="tag"/>
+                        <label for="tag-{{$index}}">{{tag}}</label>
+                    </div>
+                </div>
+                <p ng-show="addTimesheetForm.tag.$error.required && addTimesheetFormSubmit"
+                   class="help-block" >Tag is required</p>
+            </div>
 
-        <div  class="form-group">
-            <timer interval="1000" auto-start="false" ><span ng-show="hours">{{hours}} hour{{hoursS}}, </span> <span ng-show="minutes">{{minutes}} minute{{minutesS}}, </span>{{seconds}} second{{secondsS}}.</timer>
+           <!-- <div  class="form-group">
+                <label>Start Time</label><input ng-model="timesheet.start_time_format"/>
+            </div>
 
-            <button ng-click="startTimer()" ng-disabled="timerRunning" class="btn btn-success" ng-show="!timerRunning">Start Timer</button>
-            <button ng-click="stopTimer(addTimesheetForm)" ng-disabled="!timerRunning"  class="btn btn-success" ng-show="timerRunning">Stop Timer</button>
+            <div  class="form-group">
+                <label>End Time</label><input ng-model="timesheet.end_time_format"/>
+            </div>-->
+
+            <button ng-click="showForm = false" class="btn btn-success">Done</button>
+
         </div>
 
     <!-- <h3>Timer 1: <timer/></h3>
@@ -45,7 +64,7 @@
      <button ng-click="startTimer()" ng-disabled="timerRunning">Start Timers</button>
      <button ng-click="stopTimer()" ng-disabled="!timerRunning">Stop Timers</button>-->
 
-    <div class="row">
+    <div class="row" ng-show="!showForm">
     <div class="col-md-12">
         <div  ng-repeat="value in sortedTimeEntries track by $index">
             <h3><div class="pull-left">{{value.date}}</div>

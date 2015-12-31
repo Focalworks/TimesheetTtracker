@@ -9,6 +9,7 @@ myApp.controller('userCtrl', ['$scope', '$location', '$timeout', 'userModel', 'O
             $location.path('/timesheet');
             $scope.user.loggedInUser = true;
         }
+
         /*Methods*/
         angular.extend($scope, {
             loginFormSubmit: false,
