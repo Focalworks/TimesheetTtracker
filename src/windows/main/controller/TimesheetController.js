@@ -46,8 +46,11 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
                 timeEntry.status = 1;
                 OfflineStorage.addDoc(timeEntry, 'timesheet');
                 $scope.timeEntries.push(timeEntry);
+                console.log($scope.timeEntries);
+
                 /* Add entry */
             });
+
         }).error(function (e) {
             $scope.timeEntries = OfflineStorage.getDocs('timesheet');
             /* Load offline Data on error */
@@ -62,6 +65,7 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
     /* Start Timer on click */
     $scope.startTimer = function (){
+        console.log("START", $scope.timesheet)
         var currentDate = new Date().getTime();
         $scope.$broadcast('timer-start');
         $scope.timerRunning = true;
@@ -171,13 +175,11 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         $scope.timesheet.project = {};
         $scope.timesheet.desc = "";
         $scope.timesheet.tagArr = {};
-        /*var temp = angular.copy($scope.timesheet.tagArr);
-         angular.forEach(temp, function(tag, key) {
-         temp[key] = false;
-         });
-
-         $scope.timesheet.tagArr = angular.copy(temp);*/
+        $scope.timesheet.estimates = {};
+        $scope.fwToggle.estimates = {};
+        $scope.showForm = false;
         $scope.$broadcast('timer-reset');
+        $scope.timerRunning = false;
     };
 
     $scope.continue_entry = function(uuid, addTimesheetForm) {
@@ -196,6 +198,23 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         $scope.timesheet.project.name = timeEntry[0].project;
         $scope.timesheet.project.id = timeEntry[0].project_id;
 
+        $scope.timesheet.estimates = {};
+        $scope.fwToggle.estimates = {};
+        if(timeEntry[0].estimate_id!=undefined && timeEntry[0].estimate_id.length) {
+            angular.forEach($scope.fwToggle.projectArr, function (project, key) {
+                if (project.id == $scope.timesheet.project.id) {
+                    $scope.fwToggle.estimates = project.estimates;
+                    angular.forEach(project.estimates, function (estimate, ekey) {
+                        if (estimate.id == timeEntry[0].estimate_id) {
+                            $scope.timesheet.estimates = estimate;
+                        }
+                    });
+                }
+            });
+        }
+
+        console.log("CONTINUE", $scope.timesheet);
+
         var tagsArr = timeEntry[0].tags.split(',');
         $scope.timesheet.tagArr = {};
         angular.forEach(tagsArr, function(tag, key) {
@@ -206,6 +225,10 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
     };
 
+    $scope.populate_estimate = function(project) {
+        $scope.fwToggle.estimates = project.estimates;
+    };
+
     /* Timer Stopped */
     $scope.$on('timer-stopped', function (event, data){
         var response = {};
@@ -213,6 +236,8 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
         response.project = ($scope.timesheet.project && $scope.timesheet.project.name != undefined) ? $scope.timesheet.project.name : '';
         response.project_id = ($scope.timesheet.project && $scope.timesheet.project.id != undefined) ? $scope.timesheet.project.id : '';
+
+        response.estimate_id = ($scope.timesheet.estimates!=undefined && $scope.timesheet.estimates.id != undefined) ? $scope.timesheet.estimates.id : '';
 
         /* var total_hrs = (data.hours) ? data.hours  + 'h ': '';
          var total_min = (data.minutes) ? data.minutes + 'm ': '';
