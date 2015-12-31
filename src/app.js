@@ -26,7 +26,7 @@ app.on('browser-window-focus', function() {
 
 function startInterval() {
     //count will increment every 5 minutes
-    idleInterval = setInterval(timerIncrement, 1000*5);//60000 //call every one minute
+    idleInterval = setInterval(timerIncrement, 60000*5);//60000 //call every one minute
 }
 
 function timerIncrement() {
