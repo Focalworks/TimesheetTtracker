@@ -1,4 +1,5 @@
 var uuid = require('node-uuid');
+var ipcR = require("electron").ipcRenderer;
 
 myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  function(timesheet, OfflineStorage, $scope) {
     var syncData = false;
@@ -153,10 +154,10 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
                     $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
                 });
             }).error(function(data) {
-                 /* Update deleted flag to 1 */
-                 OfflineStorage.updateTimesheetStatus(uuid, 'updateRemove').then(function(offlineDbData) {
+                /* Update deleted flag to 1 */
+                OfflineStorage.updateTimesheetStatus(uuid, 'updateRemove').then(function(offlineDbData) {
                     $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
-                 });
+                });
             });
         }
         else
@@ -171,11 +172,11 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
         $scope.timesheet.desc = "";
         $scope.timesheet.tagArr = {};
         /*var temp = angular.copy($scope.timesheet.tagArr);
-        angular.forEach(temp, function(tag, key) {
-            temp[key] = false;
-        });
+         angular.forEach(temp, function(tag, key) {
+         temp[key] = false;
+         });
 
-        $scope.timesheet.tagArr = angular.copy(temp);*/
+         $scope.timesheet.tagArr = angular.copy(temp);*/
         $scope.$broadcast('timer-reset');
     };
 
@@ -207,61 +208,66 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
     /* Timer Stopped */
     $scope.$on('timer-stopped', function (event, data){
-            var response = {};
-            response.desc = $scope.timesheet.desc;
+        var response = {};
+        response.desc = $scope.timesheet.desc;
 
-            response.project = ($scope.timesheet.project && $scope.timesheet.project.name != undefined) ? $scope.timesheet.project.name : '';
-            response.project_id = ($scope.timesheet.project && $scope.timesheet.project.id != undefined) ? $scope.timesheet.project.id : '';
+        response.project = ($scope.timesheet.project && $scope.timesheet.project.name != undefined) ? $scope.timesheet.project.name : '';
+        response.project_id = ($scope.timesheet.project && $scope.timesheet.project.id != undefined) ? $scope.timesheet.project.id : '';
 
-           /* var total_hrs = (data.hours) ? data.hours  + 'h ': '';
-            var total_min = (data.minutes) ? data.minutes + 'm ': '';
-            var total_sec = (data.seconds) ? data.seconds + 's ': '';
+        /* var total_hrs = (data.hours) ? data.hours  + 'h ': '';
+         var total_min = (data.minutes) ? data.minutes + 'm ': '';
+         var total_sec = (data.seconds) ? data.seconds + 's ': '';
 
-            var total_time = total_hrs+total_min+total_sec;
-            response.time = total_time;
-            response.total_time = data.millis;*/
+         var total_time = total_hrs+total_min+total_sec;
+         response.time = total_time;
+         response.total_time = data.millis;*/
 
-            var startTime = $scope.timesheet.start_time; //convert string date to Date object
-            var endTime = $scope.timesheet.end_time;
-            var diff = endTime-startTime;
-            response.total_time = millisToTime(diff);
-            response.total_time = response.total_time.toFixed(2);
+        var startTime = $scope.timesheet.start_time; //convert string date to Date object
+        var endTime = $scope.timesheet.end_time;
+        var diff = endTime-startTime;
+        response.total_time = millisToTime(diff);
+        response.total_time = response.total_time.toFixed(2);
 
-            response.status = 0;
-            response.uuid = uuid.v4();
+        response.status = 0;
+        response.uuid = uuid.v4();
 
-            //var tagsArr = timeEntry[0].tag.split(',');
-            //$scope.timesheet.tagArr = {};
-            var temp = [];
-            angular.forEach($scope.timesheet.tagArr, function(value, tag) {
-                if(value) {
-                    temp.push(tag);
-                }
-            });
-
-            response.tags = temp.join(',');
-
-            response.start_time = $scope.timesheet.start_time;
-            response.end_time = $scope.timesheet.end_time;
-
-            response.uid = $scope.uid;
-
-            /* Send Data to server */
-            timesheet.saveTimesheet(response).success(function(data) {
-                data.status = 1;
-                OfflineStorage.addDoc(data, 'timesheet').then(function(offlineDbData) {
-                    $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
-                });
-            }).error(function(data) {
-                response.status = 0;
-                OfflineStorage.addDoc(response, 'timesheet').then(function(offlineDbData) {
-                    $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
-                });
-            });
-
+        //var tagsArr = timeEntry[0].tag.split(',');
+        //$scope.timesheet.tagArr = {};
+        var temp = [];
+        angular.forEach($scope.timesheet.tagArr, function(value, tag) {
+            if(value) {
+                temp.push(tag);
+            }
         });
 
-    }]);
+        response.tags = temp.join(',');
+
+        response.start_time = $scope.timesheet.start_time;
+        response.end_time = $scope.timesheet.end_time;
+
+        response.uid = $scope.uid;
+
+        /* Send Data to server */
+        timesheet.saveTimesheet(response).success(function(data) {
+            data.status = 1;
+            OfflineStorage.addDoc(data, 'timesheet').then(function(offlineDbData) {
+                $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
+            });
+        }).error(function(data) {
+            response.status = 0;
+            OfflineStorage.addDoc(response, 'timesheet').then(function(offlineDbData) {
+                $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
+            });
+        });
+
+    });
+
+    ipcR.on('get_timer_status', function(event, arg) {
+        if($scope.timerRunning == false) {
+            ipcR.send('start_idle_timer', $scope.timerRunning);
+        }
+    });
+}]);
 
 function getFormattedTime(unix_timestamp, date) {
     var d = new Date(unix_timestamp);
