@@ -15,14 +15,28 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
     /* Helper Function to sync data to online */
     $scope.syncData = function(TimesheetData) {
         timesheet.syncTimesheets(TimesheetData).success(function (response) {
-            angular.forEach(TimesheetData, function (data, key) {
-                OfflineStorage.updateTimesheetStatus(data.id); /* Update status of entry */
+           /* console.log("RESOONSE", response);
+            angular.forEach(response, function (data, key) {
+                OfflineStorage.updateTimesheetStatus(data.uuid);
+            });*/
+
+            OfflineStorage.truncateDb('timesheet');
+            $scope.timeEntries = [];
+            angular.forEach(response, function (timeEntry, key) {
+                timeEntry.uuid = uuid.v4();
+                timeEntry.status = 1;
+                OfflineStorage.addDoc(timeEntry, 'timesheet');
+                $scope.timeEntries.push(timeEntry);
             });
+        }).error(function (e) {
+            $scope.timeEntries = OfflineStorage.getDocs('timesheet');
+            /* Load offline Data on error */
         });
     };
 
     /* Load TimeEnteries From Offline and Sync Data to Online */
     var timeEntries = OfflineStorage.getDocs('timesheet', 'all');
+    console.log("LOADALL", timeEntries);
 
     if(timeEntries.length) {
         angular.forEach(timeEntries, function(data, key) {
@@ -35,6 +49,7 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
             $scope.syncData(timeEntries); /* Sync data to online for status 0 */
         }
     }
+
 
     /* Load timeEntries Form Online */
     if(!syncData) {
@@ -147,20 +162,28 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
     }, true);
 
-    $scope.delete_entry = function(id) {
+    $scope.delete_entry = function(uuid) {
         if(confirm("Deleted Time Entries cannot be restored"))
         {
-            /* Send Data to server */
-            timesheet.removeTimesheet(id).success(function(data) {
-                OfflineStorage.removeTimeEntry(id).then(function() {
-                    $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
+            var entryToDelete = OfflineStorage.getSingleTimeEntry(uuid);
+            if(entryToDelete.id != undefined) {
+                console.log(entryToDelete);
+                /* Send Data to server */
+                timesheet.removeTimesheet(id).success(function (data) {
+                    OfflineStorage.removeTimeEntry(id).then(function () {
+                        $scope.timeEntries = OfflineStorage.getDocs('timesheet');
+                    });
+                }).error(function (data) {
+                    /* Update deleted flag to 1
+                    OfflineStorage.updateTimesheetStatus(id, 'updateRemove').then(function (offlineDbData) {
+                        $scope.timeEntries = OfflineStorage.getDocs('timesheet');
+                    });*/
                 });
-            }).error(function(data) {
-                /* Update deleted flag to 1 */
-                OfflineStorage.updateTimesheetStatus(uuid, 'updateRemove').then(function(offlineDbData) {
-                    $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
+            }else {
+                OfflineStorage.updateTimesheetStatus(uuid, 'updateRemove').then(function (offlineDbData) {
+                    $scope.timeEntries = OfflineStorage.getDocs('timesheet');
                 });
-            });
+            }
         }
         else
         {

@@ -127,10 +127,10 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
         //}.bind(this);
     };
 
-    this.updateTimesheetStatus = function(id, op) {
+    this.updateTimesheetStatus = function(uuid, op) {
         var d = $q.defer();
         if(this.isLoaded() && this.getCollection('timesheet')) {
-            var timesheetData = this.getCollection('timesheet').find({ id:  id});
+            var timesheetData = this.getCollection('timesheet').find({ uuid:  uuid});
             if(timesheetData) {
                 if (op && op == 'updateRemove') {
                     timesheetData[0].status = 0;
