@@ -10,7 +10,7 @@ var mainWindow = null;
 app.on('ready', function() {
     mainWindow = new browserWindow({width: 900, height: 700,icon: "file://" + __dirname + '/windows/main/images/logo.png'});
     mainWindow.loadURL("file://" + __dirname + '/windows/main/index.html');
-    mainWindow.openDevTools();
+    //mainWindow.openDevTools();
 });
 
 app.on('browser-window-blur', function() {

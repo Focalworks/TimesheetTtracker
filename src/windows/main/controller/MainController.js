@@ -40,7 +40,6 @@ myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope
         .init()
         .then(function (db) {
             $scope.fwToggle.projectArr = db.getDocs('projects');
-            console.log($scope.fwToggle.projectArr);
             var tagsObj = db.getDocs('tags');
             $scope.fwToggle.tagArr = (tagsObj.length) ? tagsObj : {};
             $scope.init();

@@ -46,7 +46,6 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
                 timeEntry.status = 1;
                 OfflineStorage.addDoc(timeEntry, 'timesheet');
                 $scope.timeEntries.push(timeEntry);
-                console.log($scope.timeEntries);
 
                 /* Add entry */
             });
@@ -65,7 +64,6 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
 
     /* Start Timer on click */
     $scope.startTimer = function (){
-        console.log("START", $scope.timesheet)
         var currentDate = new Date().getTime();
         $scope.$broadcast('timer-start');
         $scope.timerRunning = true;
@@ -212,8 +210,6 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
                 }
             });
         }
-
-        console.log("CONTINUE", $scope.timesheet);
 
         var tagsArr = timeEntry[0].tags.split(',');
         $scope.timesheet.tagArr = {};
