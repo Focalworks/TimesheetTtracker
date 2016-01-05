@@ -6,12 +6,22 @@ var ipcR = require("electron").ipcRenderer;
 var idleTime = 0;
 var idleInterval;
 var mainWindow = null;
+var path = require('path');
+var iconPath = path.join(__dirname, '/windows/main/images/time.png');
+var appIcon = path.join(__dirname, '/windows/main/images/time.png');
 
 app.on('ready', function() {
-    mainWindow = new browserWindow({width: 900, height: 700,icon: "file://" + __dirname + '/windows/main/images/logo.png'});
+    mainWindow = new browserWindow({
+        width: 900,
+        height: 700,
+        icon: iconPath
+    });
+
     mainWindow.loadURL("file://" + __dirname + '/windows/main/index.html');
     mainWindow.openDevTools();
+    mainWindow.setMenu(null);
 });
+
 
 app.on('browser-window-blur', function() {
     //get timer status to start idle state timer
