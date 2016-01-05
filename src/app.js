@@ -66,7 +66,6 @@ app.on('ready', function() {
     });
 
     mainWindow.on('closed', function(){
-        console.log("closed");
         app.quit();
         mainWindow = null;
     });
