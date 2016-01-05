@@ -77,7 +77,6 @@ offlineService.service('OfflineStorage', ['$q', function($q) {
 
     this.addDoc = function(data, collection) {
         var d = $q.defer();
-console.log(data, collection);
         if(this.isLoaded() && this.getCollection(collection)) {
             data.deleted = 0;
             this.getCollection(collection).insert(data);
@@ -128,10 +127,10 @@ console.log(data, collection);
         //}.bind(this);
     };
 
-    this.updateTimesheetStatus = function(id, op) {
+    this.updateTimesheetStatus = function(uuid, op) {
         var d = $q.defer();
         if(this.isLoaded() && this.getCollection('timesheet')) {
-            var timesheetData = this.getCollection('timesheet').find({ id:  id});
+            var timesheetData = this.getCollection('timesheet').find({ uuid:  uuid});
             if(timesheetData) {
                 if (op && op == 'updateRemove') {
                     timesheetData[0].status = 0;

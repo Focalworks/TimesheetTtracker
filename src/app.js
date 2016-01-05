@@ -22,7 +22,6 @@ app.on('ready', function() {
     mainWindow.setMenu(null);
 });
 
-
 app.on('browser-window-blur', function() {
     //get timer status to start idle state timer
     //to check whether timer is on or off
@@ -43,7 +42,7 @@ function timerIncrement() {
     idleTime = idleTime + 1;
 
     //count will increment every 5 minutes - display notification after 30 minutes (5 x ? = 30 minutes)
-    if (idleTime >= 6) { // 2 minutes
+    if (idleTime >= 24) { // 2 minutes
         //show notification to user and reset timer
         mainWindow.webContents.executeJavaScript('new Notification("Oh, you forget to start timer")');
         idleTime = 0;

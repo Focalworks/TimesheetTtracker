@@ -25,7 +25,7 @@ angular.module('userModelService' , ['ngCookies'])
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                url: baseUrl + 'auth',
+                url: baseUrl + 'rest/auth',
                 method: "POST",
                 data: {
                     email: loginData.email,

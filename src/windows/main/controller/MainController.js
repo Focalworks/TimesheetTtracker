@@ -21,7 +21,6 @@ myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope
                 });
             });
         }
-        console.log("$scope.fwToggle", $scope.fwToggle);
 
         /* Load Tags */
         if(!$scope.fwToggle.tagArr.length) {
@@ -30,7 +29,6 @@ myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope
                 angular.forEach($scope.fwToggle.tagArr, function (tag, key) {
                     OfflineStorage.addDoc(tag, 'tags'); /* ADD Projects */
                 });
-                console.log("$scope.fwToggle.tagArr", $scope.fwToggle.tagArr);
                /* console.log("INSIDE TAG", data);
                 OfflineStorage.addDoc(data, 'tags');  *//*Update status of entry */
             });

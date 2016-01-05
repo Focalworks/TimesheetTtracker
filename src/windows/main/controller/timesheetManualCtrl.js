@@ -28,6 +28,9 @@ myApp.controller('timesheetManualCtrl', ['timesheet','OfflineStorage','$scope','
         return valid;
     };
 
+    $scope.populate_estimate = function(project) {
+        $scope.fwToggle.estimates = project.estimates;
+    };
 
     /* Save timesheet on click */
     $scope.addManualEntry = function (addTimesheetForm){
@@ -49,9 +52,9 @@ myApp.controller('timesheetManualCtrl', ['timesheet','OfflineStorage','$scope','
         response.project = ($scope.timesheet.project && $scope.timesheet.project.name != undefined) ? $scope.timesheet.project.name : '';
         response.project_id = ($scope.timesheet.project && $scope.timesheet.project.id != undefined) ? $scope.timesheet.project.id : '';
 
+        response.estimate_id = ($scope.timesheet.estimates!=undefined && $scope.timesheet.estimates.id != undefined) ? $scope.timesheet.estimates.id : '';
         response.total_time = $scope.timesheet.total_time;
 
-        response.status = 0;
         response.uuid = uuid.v4();
 
         var temp = [];
@@ -70,12 +73,13 @@ myApp.controller('timesheetManualCtrl', ['timesheet','OfflineStorage','$scope','
         console.log(response);
         /* Send Data to server */
         timesheet.saveTimesheet(response).success(function(data) {
-            response.status = 1;
-            OfflineStorage.addDoc(response, 'timesheet').then(function(offlineDbData) {
+            data.status = 1;
+            OfflineStorage.addDoc(data, 'timesheet').then(function(offlineDbData) {
                 $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
                 $location.path('/timesheet');
             });
         }).error(function(data) {
+            response.status = 0;
             OfflineStorage.addDoc(response, 'timesheet').then(function(offlineDbData) {
                 $scope.timeEntries =  OfflineStorage.getDocs('timesheet');
                 $location.path('/timesheet');
