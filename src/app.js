@@ -1,15 +1,17 @@
 var app = require('app');
 browserWindow = require('browser-window');
 var ipc = require("electron").ipcMain;
-var ipcR = require("electron").ipcRenderer;
 
 var idleTime = 0;
 var idleInterval;
 var mainWindow = null;
+var Tray = require('tray');
+var Menu = require('menu');
 var path = require('path');
 var iconPath = path.join(__dirname, '/windows/main/images/time.png');
 var appIcon = path.join(__dirname, '/windows/main/images/time.png');
-
+var mainPage = "file://" + __dirname + '/windows/main/index.html';
+var force_quit = false;
 app.on('ready', function() {
     mainWindow = new browserWindow({
         width: 900,
@@ -17,9 +19,63 @@ app.on('ready', function() {
         icon: iconPath
     });
 
-    mainWindow.loadURL("file://" + __dirname + '/windows/main/index.html');
+    mainWindow.loadURL(mainPage);
     mainWindow.openDevTools();
     mainWindow.setMenu(null);
+
+
+    appIcon = new Tray(iconPath);
+    var contextMenu = Menu.buildFromTemplate([
+        {
+            label: 'Sync',
+            icon: iconPath,
+            click: function() {
+                mainWindow.webContents.send('user_sync_data_action');
+            }
+
+        },
+        {
+            label: 'Logout',
+            accelerator: 'Command+l',
+            click: function() {
+                mainWindow.webContents.send('user_logout_action');
+                mainWindow.loadURL(mainPage);
+                mainWindow.show();
+            }
+        },
+        {
+            type: 'separator'
+        },
+        {
+            label: 'Quit',
+            accelerator: 'CmdOrCtrl+Q',
+            click: function() {
+                force_quit=true; app.quit();
+            }
+        }
+    ]);
+
+    appIcon.setToolTip('Toggle');
+    appIcon.setContextMenu(contextMenu);
+
+    mainWindow.on('close', function(e){
+        if(!force_quit){
+            e.preventDefault();
+            mainWindow.hide();
+        }
+    });
+
+    mainWindow.on('closed', function(){
+        console.log("closed");
+        app.quit();
+        mainWindow = null;
+    });
+
+});
+
+
+app.on('activate-with-no-open-windows', function(){
+    mainWindow.show();
 });
 
 app.on('browser-window-blur', function() {

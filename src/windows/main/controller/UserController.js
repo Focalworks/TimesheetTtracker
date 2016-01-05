@@ -1,6 +1,14 @@
 myApp.controller('userCtrl', ['$scope', '$location', '$timeout', 'userModel', 'OfflineStorage', '$rootScope',
     function ($scope, $location, $timeout, userModel, OfflineStorage,$rootScope) {
 
+        ipcR.on('user_logout_action', function(event, arg) {
+            console.log('user logged user_logout_action');
+            if($scope.user.loggedInUser == true) {
+                console.log('user logged in');
+                $scope.doLogout();
+            }
+        });
+
         $scope.userObject =  OfflineStorage.getDocs('user');
 
         if($scope.userObject && $scope.userObject[0] && $scope.userObject[0].id)

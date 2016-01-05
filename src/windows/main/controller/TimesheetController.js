@@ -1,5 +1,4 @@
 var uuid = require('node-uuid');
-var ipcR = require("electron").ipcRenderer;
 
 myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  function(timesheet, OfflineStorage, $scope) {
     var syncData = false;
@@ -9,6 +8,12 @@ myApp.controller('timesheetCtrl', ['timesheet','OfflineStorage','$scope',  funct
     if($scope.userObject.length) {
         $scope.uid = $scope.userObject[0].id;
     }
+
+    ipcR.on('user_sync_data_action', function(event, arg) {
+        if($scope.user.loggedInUser == true) {
+            $scope.syncData();
+        }
+    });
 
     //$scope.timesheet.tagArr = $scope.fwToggle.tagArr;
 

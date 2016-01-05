@@ -1,3 +1,5 @@
+var ipcR = require("electron").ipcRenderer;
+
 myApp.controller('MainCtrl', ['$scope','OfflineStorage','timesheet', '$rootScope','$location', function($scope,OfflineStorage,timesheet, $rootScope, $location) {
 
     /*Methods*/

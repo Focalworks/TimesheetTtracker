@@ -9,50 +9,8 @@
     <script>var moment = require("moment");
     var humanizeDuration = require("humanize-duration");
     var baseUrl = "http://192.168.7.89/RND/timesheet/public/";
-        var GRANT_TYPE="desktop_app";
-        var CLIENT_ID="web";
-
-    var remote = require('remote');
-    var Tray = remote.require('tray');
-    var Menu = remote.require('menu');
-    var path = require('path');
-    var trayIcon = null;
-
-    trayIcon = new Tray(path.join(__dirname, 'images/time.png'));
-
-    var trayMenuTemplate = [
-        {
-            label: 'user name',
-            enabled: false
-        },
-        {
-            label: 'new',
-            click: function () {
-                ipc.send('open-settings-window');
-            }
-        },
-        {
-            label: 'stop',
-            click: function () {
-                ipc.send('open-settings-window');
-            }
-        },
-        {
-            label: 'sync',
-            click: function () {
-                ipc.send('open-settings-window');
-            }
-        },
-
-        {
-            label: 'Quit',
-            click: function () {
-                ipc.send('close-main-window');
-            }
-        }
-    ];
-    var trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
-    trayIcon.setContextMenu(trayMenu);
+    var GRANT_TYPE="desktop_app";
+    var CLIENT_ID="web";
 
     </script>
     <script src="../../../bower_components/angular-timer/dist/angular-timer.js"></script>
